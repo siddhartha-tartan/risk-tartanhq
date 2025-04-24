@@ -1,0 +1,44 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      nodejs: 22
+  pre_build:
+    commands:
+      - echo Installing NPM dependencies
+      - npm install
+  build:
+    commands:
+      - echo Build started on `date`
+      - npm run build
+      # Add standalone export for static files
+      - mkdir -p standalone
+      - cp -r .next standalone/
+      - cp -r public standalone/
+      - cp package.json standalone/
+      - cp next.config.js standalone/
+      - cp -r scripts standalone/
+  post_build:
+    commands:
+      # First copy the Next.js build
+      - echo "Copying Next.js build to S3"
+      - aws s3 cp --recursive standalone/.next s3://cam-document-processor/.next/
+      - aws s3 cp --recursive standalone/public s3://cam-document-processor/public/
+      - aws s3 cp standalone/package.json s3://cam-document-processor/
+      - aws s3 cp standalone/next.config.js s3://cam-document-processor/
+      - aws s3 cp --recursive standalone/scripts s3://cam-document-processor/scripts/
+      
+      # Set cache control for static assets
+      - >
+        aws s3 cp --recursive standalone/.next/static s3://cam-document-processor/.next/static/ 
+        --cache-control="public, max-age=31536000, immutable"
+      
+      # Create CloudFront invalidation
+      - >
+        aws cloudfront create-invalidation --distribution-id EX90Z7N93CC7B 
+        --paths "/*"
+
+artifacts:
+  files:
+    - '**/*'
+  base-directory: standalone 
