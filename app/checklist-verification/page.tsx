@@ -172,7 +172,7 @@ export default function ChecklistVerificationPage() {
               
               // Group items by s_no if it exists
               let currentGroup: any = {};
-              let currentSno = null;
+              let currentSno: string | number | null = null;
               
               data.verificationResults.forEach((item: any) => {
                 const category = item.Category;
