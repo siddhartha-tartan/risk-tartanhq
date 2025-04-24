@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    return new Promise((resolve) => {
+    return new Promise<Response>((resolve) => {
       // Use 'python3' if on macOS or Linux, fallback to 'python' otherwise
       const pythonCommand = process.platform === 'win32' ? 'python' : 'python3';
       console.log(`[${new Date().toISOString()}] Using Python command: ${pythonCommand}`);
@@ -101,10 +101,11 @@ export async function POST(request: NextRequest) {
         
         if (code !== 0) {
           console.error(`[${new Date().toISOString()}] Python script execution failed:`, errorData);
-          return resolve(NextResponse.json(
+          resolve(NextResponse.json(
             { error: 'File upload to S3 failed', details: errorData },
             { status: 500 }
           ));
+          return;
         }
         
         try {
@@ -123,7 +124,7 @@ export async function POST(request: NextRequest) {
           
           if (jsonResult.status === 'success') {
             console.log(`[${new Date().toISOString()}] Upload successful, returning response`);
-            return resolve(NextResponse.json({
+            resolve(NextResponse.json({
               success: true,
               message: 'File uploaded successfully',
               s3Key: fileName,
@@ -131,7 +132,7 @@ export async function POST(request: NextRequest) {
             }));
           } else {
             console.error(`[${new Date().toISOString()}] Upload failed with error:`, jsonResult.message);
-            return resolve(NextResponse.json(
+            resolve(NextResponse.json(
               { error: jsonResult.message || 'Unknown error' },
               { status: 500 }
             ));
@@ -139,7 +140,7 @@ export async function POST(request: NextRequest) {
         } catch (error) {
           console.error(`[${new Date().toISOString()}] Error parsing Python script output:`, error);
           console.error(`[${new Date().toISOString()}] Raw output:`, outputData);
-          return resolve(NextResponse.json(
+          resolve(NextResponse.json(
             { error: 'Error processing upload result', details: outputData },
             { status: 500 }
           ));
@@ -149,7 +150,7 @@ export async function POST(request: NextRequest) {
       // Handle unexpected errors with the process
       pythonProcess.on('error', (error) => {
         console.error(`[${new Date().toISOString()}] Python process error:`, error);
-        return resolve(NextResponse.json(
+        resolve(NextResponse.json(
           { error: `Error executing Python process: ${error.message}` },
           { status: 500 }
         ));
