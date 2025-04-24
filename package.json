@@ -7,7 +7,10 @@
     "dev": "next dev --port 3000 --hostname 0.0.0.0",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
+    "typecheck": "tsc --noEmit",
+    "find-ts-errors": "node scripts/find-ts-errors.js",
+    "prepare": "husky install"
   },
   "keywords": [],
   "author": "",
@@ -36,6 +39,18 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@types/adm-zip": "^0.5.7"
+    "@types/adm-zip": "^0.5.7",
+    "@typescript-eslint/eslint-plugin": "^8.31.0",
+    "@typescript-eslint/parser": "^8.31.0",
+    "eslint": "^9.25.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.1",
+    "tsc-files": "^1.1.4"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "tsc-files --noEmit"
+    ]
   }
 }

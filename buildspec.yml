@@ -9,6 +9,8 @@ phases:
       - npm install --legacy-peer-deps
       - echo Installing additional dependencies
       - npm install @headlessui/react --legacy-peer-deps
+      - echo Running TypeScript type checking
+      - npm run typecheck || (echo "TypeScript errors found. Fix them before proceeding." && exit 1)
   build:
     commands:
       - echo Build started on `date`
