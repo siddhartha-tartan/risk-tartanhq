@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { documentStore } from '@/utils/documentStore';
 
-export default function ProcessingPage() {
+// Component that uses useSearchParams
+function ProcessingContent() {
   const [processingStep, setProcessingStep] = useState(1);
   const [status, setStatus] = useState('Initializing OCR process...');
   const [error, setError] = useState('');
@@ -102,7 +103,7 @@ export default function ProcessingPage() {
             
             return {
               id: index + 1,
-              filename: file.name,
+              originalFilename: file.name,
               thumbnailUrl: file.path,
               filePath: file.path,
               type: inferDocumentType(file.name),
@@ -122,7 +123,7 @@ export default function ProcessingPage() {
             processedDocuments = Object.entries(ocrData).map(([filename, ocrText], index) => {
               return {
                 id: index + 1,
-                filename: filename,
+                originalFilename: filename,
                 thumbnailUrl: null,
                 filePath: null,
                 type: inferDocumentType(filename),
@@ -248,7 +249,7 @@ export default function ProcessingPage() {
                 </div>
                 <div className="ml-4">
                   <h2 className="text-sm font-medium text-gray-900">Finalizing</h2>
-                  <p className="text-sm text-gray-500">Preparing financial verification report</p>
+                  <p className="text-sm text-gray-500">Preparing document analysis for review</p>
                 </div>
               </div>
             </div>
@@ -266,18 +267,47 @@ export default function ProcessingPage() {
   );
 }
 
-// Infer document type from filename
+// Loading fallback component
+function ProcessingFallback() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+      <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-md">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Document Processing</h1>
+          <p className="text-gray-600">Loading processing information...</p>
+        </div>
+        <div className="flex justify-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Main component with Suspense boundary
+export default function ProcessingPage() {
+  return (
+    <Suspense fallback={<ProcessingFallback />}>
+      <ProcessingContent />
+    </Suspense>
+  );
+}
+
+// Helper function to infer document type from filename
 function inferDocumentType(filename: string): string {
-  filename = filename.toLowerCase();
+  const lowerName = filename.toLowerCase();
   
-  if (filename.includes('invoice') || filename.includes('bill')) {
-    return 'invoice';
-  } else if (filename.includes('receipt')) {
-    return 'receipt';
-  } else if (filename.includes('patient') || filename.includes('medical') || filename.includes('health')) {
-    return 'medical_form';
-  } else if (filename.includes('contract') || filename.includes('agreement')) {
-    return 'contract';
+  if (lowerName.includes('aadhar') || lowerName.includes('aadhaar') || lowerName.includes('pan') || 
+      lowerName.includes('id') || lowerName.includes('card')) {
+    return 'identification';
+  } else if (lowerName.includes('salary') || lowerName.includes('payslip') || lowerName.includes('income')) {
+    return 'income';
+  } else if (lowerName.includes('bank') || lowerName.includes('statement')) {
+    return 'bank_statement';
+  } else if (lowerName.includes('tax') || lowerName.includes('itr') || lowerName.includes('return')) {
+    return 'tax';
+  } else if (lowerName.includes('bill') || lowerName.includes('utility') || lowerName.includes('electricity')) {
+    return 'utility_bill';
   } else {
     return 'other';
   }
