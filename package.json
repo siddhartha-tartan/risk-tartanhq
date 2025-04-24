@@ -1,0 +1,40 @@
+{
+  "name": "document-processor",
+  "version": "1.0.0",
+  "description": "Document Processing Application",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev --port 3000 --hostname 0.0.0.0",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.1.4",
+    "@tanstack/react-query": "^5.74.3",
+    "@types/node": "^22.14.1",
+    "@types/react": "^19.1.1",
+    "@types/react-dom": "^19.1.2",
+    "@types/uuid": "^9.0.8",
+    "adm-zip": "^0.5.16",
+    "autoprefixer": "^10.4.21",
+    "aws-sdk": "^2.1692.0",
+    "file-type": "^20.4.1",
+    "jsonwebtoken": "^9.0.2",
+    "next": "^15.3.0",
+    "openai": "^4.94.0",
+    "postcss": "^8.5.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-dropzone": "^14.3.8",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.8.3",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/adm-zip": "^0.5.7"
+  }
+}

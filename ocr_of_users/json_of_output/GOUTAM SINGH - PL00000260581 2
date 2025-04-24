@@ -1,0 +1,402 @@
+[
+  {
+    "s_no": 1,
+    "field_name": "Applicant Name",
+    "Source_to_be_looked_at_in_ocr": "PAN Card",
+    "Field_data_found_in_OCR": "GOUTAM SINGH",
+    "Source_where_actually_data_is_found": "PAN Card",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 2,
+    "field_name": "Applicant Name",
+    "Source_to_be_looked_at_in_ocr": "Aadhaar Card",
+    "Field_data_found_in_OCR": "Goutam Singh",
+    "Source_where_actually_data_is_found": "Aadhaar Card",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 3,
+    "field_name": "Applicant Name",
+    "Source_to_be_looked_at_in_ocr": "Application Form",
+    "Field_data_found_in_OCR": "Goutam Singh",
+    "Source_where_actually_data_is_found": "Application Form",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 4,
+    "field_name": "Date of Birth",
+    "Source_to_be_looked_at_in_ocr": "PAN Card",
+    "Field_data_found_in_OCR": "27/12/1992",
+    "Source_where_actually_data_is_found": "PAN Card",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 5,
+    "field_name": "Date of Birth",
+    "Source_to_be_looked_at_in_ocr": "Aadhaar Card",
+    "Field_data_found_in_OCR": "27/12/1992",
+    "Source_where_actually_data_is_found": "Aadhaar Card",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 6,
+    "field_name": "Gender",
+    "Source_to_be_looked_at_in_ocr": "Aadhaar Card",
+    "Field_data_found_in_OCR": "Male",
+    "Source_where_actually_data_is_found": "Aadhaar Card",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 7,
+    "field_name": "Gender",
+    "Source_to_be_looked_at_in_ocr": "Application Form",
+    "Field_data_found_in_OCR": "Male",
+    "Source_where_actually_data_is_found": "Application Form",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 8,
+    "field_name": "Mobile Number",
+    "Source_to_be_looked_at_in_ocr": "Application Form",
+    "Field_data_found_in_OCR": "8388920141",
+    "Source_where_actually_data_is_found": "Application Form",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 9,
+    "field_name": "Mobile Number",
+    "Source_to_be_looked_at_in_ocr": "Bank Statement",
+    "Field_data_found_in_OCR": "Data not found in Document OCR",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": "Mobile number not present in statement header"
+  },
+  {
+    "s_no": 10,
+    "field_name": "Mobile Number",
+    "Source_to_be_looked_at_in_ocr": "eKYC",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 11,
+    "field_name": "Email ID",
+    "Source_to_be_looked_at_in_ocr": "Application Form",
+    "Field_data_found_in_OCR": "gautamsinghsisodia0014@gmail.com",
+    "Source_where_actually_data_is_found": "Application Form",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 12,
+    "field_name": "PAN Number",
+    "Source_to_be_looked_at_in_ocr": "PAN Card",
+    "Field_data_found_in_OCR": "DNFPS9282F",
+    "Source_where_actually_data_is_found": "PAN Card",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 13,
+    "field_name": "PAN Number",
+    "Source_to_be_looked_at_in_ocr": "eKYC",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 14,
+    "field_name": "Aadhaar Number",
+    "Source_to_be_looked_at_in_ocr": "Aadhaar Card",
+    "Field_data_found_in_OCR": "Data not found in Document OCR",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": "Number masked / not visible on image"
+  },
+  {
+    "s_no": 15,
+    "field_name": "Aadhaar Number",
+    "Source_to_be_looked_at_in_ocr": "eKYC",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 16,
+    "field_name": "Current Address",
+    "Source_to_be_looked_at_in_ocr": "Aadhaar Card",
+    "Field_data_found_in_OCR": "C/O Ram Kumar Singh, Near Co-Operative, Victorai Colliery 4 No. Dhauda, Kulti M, Barddhaman, West Bengal - 713343",
+    "Source_where_actually_data_is_found": "Aadhaar Card",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 17,
+    "field_name": "Current Address",
+    "Source_to_be_looked_at_in_ocr": "Utility Bill",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 18,
+    "field_name": "Current Address",
+    "Source_to_be_looked_at_in_ocr": "CPV Report",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 19,
+    "field_name": "Permanent Address",
+    "Source_to_be_looked_at_in_ocr": "Aadhaar Card",
+    "Field_data_found_in_OCR": "C/O Ram Kumar Singh, Near Co-Operative, Victorai Colliery 4 No. Dhauda, Kulti M, Barddhaman, West Bengal - 713343",
+    "Source_where_actually_data_is_found": "Aadhaar Card",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 20,
+    "field_name": "Permanent Address",
+    "Source_to_be_looked_at_in_ocr": "Utility Bill",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 21,
+    "field_name": "Permanent Address",
+    "Source_to_be_looked_at_in_ocr": "CPV Report",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 22,
+    "field_name": "Requested Loan Amount",
+    "Source_to_be_looked_at_in_ocr": "Application Form",
+    "Field_data_found_in_OCR": "Data not found in Document OCR",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": "Amount field blank / unreadable"
+  },
+  {
+    "s_no": 23,
+    "field_name": "Loan Tenure",
+    "Source_to_be_looked_at_in_ocr": "Application Form",
+    "Field_data_found_in_OCR": "60 months",
+    "Source_where_actually_data_is_found": "Application Form",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 24,
+    "field_name": "Purpose of Loan",
+    "Source_to_be_looked_at_in_ocr": "Application Form",
+    "Field_data_found_in_OCR": "Data not found in Document OCR",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": "Purpose field not present"
+  },
+  {
+    "s_no": 25,
+    "field_name": "Employer Name",
+    "Source_to_be_looked_at_in_ocr": "Salary Slip",
+    "Field_data_found_in_OCR": "Microtek International Private Limited",
+    "Source_where_actually_data_is_found": "Salary Slip",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 26,
+    "field_name": "Employer Name",
+    "Source_to_be_looked_at_in_ocr": "Form16",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 27,
+    "field_name": "Employer Category",
+    "Source_to_be_looked_at_in_ocr": "Internal Employer Database",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 28,
+    "field_name": "Net Monthly Salary",
+    "Source_to_be_looked_at_in_ocr": "Salary Slip",
+    "Field_data_found_in_OCR": "39,550",
+    "Source_where_actually_data_is_found": "Salary Slip",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 29,
+    "field_name": "Net Monthly Salary",
+    "Source_to_be_looked_at_in_ocr": "Bank Statement",
+    "Field_data_found_in_OCR": "27,491",
+    "Source_where_actually_data_is_found": "Bank Statement",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 30,
+    "field_name": "Gross Monthly Salary",
+    "Source_to_be_looked_at_in_ocr": "Salary Slip",
+    "Field_data_found_in_OCR": "39,550",
+    "Source_where_actually_data_is_found": "Salary Slip",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 31,
+    "field_name": "Gross Monthly Salary",
+    "Source_to_be_looked_at_in_ocr": "Form16",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 32,
+    "field_name": "Salary Credit Confirmation",
+    "Source_to_be_looked_at_in_ocr": "Bank Statement",
+    "Field_data_found_in_OCR": "Salary credit entries from MICROTEK present",
+    "Source_where_actually_data_is_found": "Bank Statement",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 33,
+    "field_name": "Average Monthly Balance",
+    "Source_to_be_looked_at_in_ocr": "Bank Statement",
+    "Field_data_found_in_OCR": "Data not found in Document OCR",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": "Statement does not show average balance figure"
+  },
+  {
+    "s_no": 34,
+    "field_name": "EMI Deductions",
+    "Source_to_be_looked_at_in_ocr": "Bank Statement",
+    "Field_data_found_in_OCR": "EMI 127057979 debits observed",
+    "Source_where_actually_data_is_found": "Bank Statement",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 35,
+    "field_name": "EMI Deductions",
+    "Source_to_be_looked_at_in_ocr": "Bureau Report",
+    "Field_data_found_in_OCR": "Multiple active personal loan EMIs",
+    "Source_where_actually_data_is_found": "Bureau Report",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 36,
+    "field_name": "Cheque Bounce Count",
+    "Source_to_be_looked_at_in_ocr": "Bank Statement",
+    "Field_data_found_in_OCR": "Data not found in Document OCR",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": "No bounce summary field visible"
+  },
+  {
+    "s_no": 37,
+    "field_name": "FOIR",
+    "Source_to_be_looked_at_in_ocr": "Derived (EMIs / Net Income)",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 38,
+    "field_name": "CIBIL Score",
+    "Source_to_be_looked_at_in_ocr": "Bureau Report",
+    "Field_data_found_in_OCR": "781",
+    "Source_where_actually_data_is_found": "Bureau Report",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 39,
+    "field_name": "Loan Enquiry Volume",
+    "Source_to_be_looked_at_in_ocr": "Bureau Report",
+    "Field_data_found_in_OCR": "Data not found in Document OCR",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": "Exact count not summarised in report"
+  },
+  {
+    "s_no": 40,
+    "field_name": "Current Loan Obligations",
+    "Source_to_be_looked_at_in_ocr": "Bureau Report",
+    "Field_data_found_in_OCR": "Current outstanding balance ₹80,283",
+    "Source_where_actually_data_is_found": "Bureau Report",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 41,
+    "field_name": "Overdue Accounts",
+    "Source_to_be_looked_at_in_ocr": "Bureau Report",
+    "Field_data_found_in_OCR": "0",
+    "Source_where_actually_data_is_found": "Bureau Report",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 42,
+    "field_name": "KYC Match Status",
+    "Source_to_be_looked_at_in_ocr": "eKYC",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 43,
+    "field_name": "KYC Match Status",
+    "Source_to_be_looked_at_in_ocr": "DigiLocker",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 44,
+    "field_name": "Bank Account Verification",
+    "Source_to_be_looked_at_in_ocr": "eNACH Mandate",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 45,
+    "field_name": "Bank Account Verification",
+    "Source_to_be_looked_at_in_ocr": "Bank Statement",
+    "Field_data_found_in_OCR": "Account name matches applicant on HDFC statement",
+    "Source_where_actually_data_is_found": "Bank Statement",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 46,
+    "field_name": "Mandate Status",
+    "Source_to_be_looked_at_in_ocr": "eNACH Mandate",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 47,
+    "field_name": "Application Type (Salaried/Self-employed)",
+    "Source_to_be_looked_at_in_ocr": "Application Form",
+    "Field_data_found_in_OCR": "Salaried",
+    "Source_where_actually_data_is_found": "Application Form",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 48,
+    "field_name": "Salary Mode (Cash/Bank)",
+    "Source_to_be_looked_at_in_ocr": "Salary Slip",
+    "Field_data_found_in_OCR": "Bank Transfer",
+    "Source_where_actually_data_is_found": "Salary Slip",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 49,
+    "field_name": "Salary Mode (Cash/Bank)",
+    "Source_to_be_looked_at_in_ocr": "Bank Statement",
+    "Field_data_found_in_OCR": "Bank",
+    "Source_where_actually_data_is_found": "Bank Statement",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 50,
+    "field_name": "Document Verification Status",
+    "Source_to_be_looked_at_in_ocr": "Internal Ops System",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  }
+]

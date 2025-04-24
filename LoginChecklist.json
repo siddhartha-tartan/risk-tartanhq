@@ -1,0 +1,137 @@
+[
+    {
+      "Category": "Minimum Credit Parameters",
+      "": "",
+      "Document (to check from)": "Application form",
+      "Checkpoints (what to check from documents)": "Physical form : Dully filled, Demographic, Cross Signed on Photograph & Signature                                                                                                                                                                                      Reference Details dully filled \nDigital Form : There will be seprate photos and no cross sign",
+      "Matching Documents (to be checked by AI), (below filled is dummy data)": "KYC & Income & Loan Documents",
+      "Data Entry Matching (to be checked by AI)": "Yes / No",
+      "Applicant": "Yes / No"
+    },
+    {
+      "Category": "Minimum Credit Parameters",
+      "": "",
+      "Document (to check from)": "Consent Mail",
+      "Checkpoints (what to check from documents)": "Consent mail from registered e mail ID of the applicant\n(Details of consent should match with data and documents uploaded)",
+      "Matching Documents (to be checked by AI), (below filled is dummy data)": "NA",
+      "Data Entry Matching (to be checked by AI)": "Yes / No",
+      "Applicant": "Yes / No"
+    },
+    {
+      "Category": "Minimum Credit Parameters",
+      "": "",
+      "Document (to check from)": "Bank Statement",
+      "Checkpoints (what to check from documents)": "Customer Name , Bank Name, statement period, salary credit mismatches , Cointunity of bank statement  and subject to scheme/Programs",
+      "Matching Documents (to be checked by AI), (below filled is dummy data)": "DRF/Cheques/Salary Slip (if applicable)",
+      "Data Entry Matching (to be checked by AI)": "Yes / No",
+      "Applicant": "Yes / No"
+    },
+    {
+      "Category": "Minimum Credit Parameters",
+      "": "",
+      "Document (to check from)": "POI (Identity proof) - Aadhar card/Voter ID/Driving licence/Passport/Digi locker printouts/NREGA Printout signed by state government officials  - NOT APPLICABLE FOR PRE-APPROVED CASES (if No address change)",
+      "Checkpoints (what to check from documents)": "Customer Name/DOB/Photo",
+      "Matching Documents (to be checked by AI), (below filled is dummy data)": "Application form/Loan agreement/POA",
+      "Data Entry Matching (to be checked by AI)": "Yes / No",
+      "Applicant": "Yes / No"
+    },
+    {
+      "Category": "Minimum Credit Parameters",
+      "": "",
+      "Document (to check from)": "POA (Address proof)-Aadhar card/Voter ID/Driving licence/Passport/Digi locker printouts/. Rental agreement with OHP of landlord ,(OVD declaration with OVD document), NREGA Job card . Exceptional scenarios - NOT APPLICABLE FOR PRE-APPROVED CASES (if No address change)",
+      "Checkpoints (what to check from documents)": "Customer Name/DOB/address-pincode",
+      "Matching Documents (to be checked by AI), (below filled is dummy data)": "Application form/Loan agreement/POI",
+      "Data Entry Matching (to be checked by AI)": "Yes / No",
+      "Applicant": "Yes / No"
+    },
+    {
+      "Category": "Minimum Credit Parameters",
+      "": "",
+      "Document (to check from)": "Financial Proof -PAN/Form 60",
+      "Checkpoints (what to check from documents)": "Name /Signature /PAN Number",
+      "Matching Documents (to be checked by AI), (below filled is dummy data)": "POI/POA/Repayment Instruments",
+      "Data Entry Matching (to be checked by AI)": "Yes / No",
+      "Applicant": "Yes / No"
+    },
+    {
+      "Category": "Minimum Credit Parameters",
+      "": "",
+      "Document (to check from)": "DOB Proof -Driving licence/Passport/Birth or corporation certificate (name is mandatory) , School leaving certificate, LIC policy (Minimum 12 month in force), aadhar card, Voter ID with affidavit stated DOB",
+      "Checkpoints (what to check from documents)": "DOB details",
+      "Matching Documents (to be checked by AI), (below filled is dummy data)": "POI/POA",
+      "Data Entry Matching (to be checked by AI)": "Yes / No",
+      "Applicant": "Yes / No"
+    },
+    {
+      "Category": "Minimum Credit Parameters",
+      "": "",
+      "Document (to check from)": "System Entry LOS - A) Sourcing Page - Scheme Group,Scheme Code,Loan Type, \nB) Sub-Product Financials (Not applicable for pre-approved) update of Banking,RTR, Eligbility ,\nC) Dedupe Process (Probable match will get confirmation from credit, \nD) RCU Trigger for LOD documents",
+      "Checkpoints (what to check from documents)": "",
+      "Matching Documents (to be checked by AI), (below filled is dummy data)": "",
+      "Data Entry Matching (to be checked by AI)": "",
+      "Applicant": "Yes / No"
+    },
+    {
+      "Category": "Program Level Checklist",
+      "": "Salaried multiplier",
+      "Document (to check from)": "Income Proof -Payslip & Bank Statement required subject to scheme/program & Payslip",
+      "Checkpoints (what to check from documents)": "Customer Name/ Pan No/ Bank A/C No/ Salary Month/ Minimum Income to be check",
+      "Matching Documents (to be checked by AI), (below filled is dummy data)": "Banks Statement/ Application Form",
+      "Data Entry Matching (to be checked by AI)": "Yes / No",
+      "Applicant": "Yes / No"
+    },
+    {
+      "Category": "Program Level Checklist",
+      "": "Salaried multiplier",
+      "Document (to check from)": "3 months Bank Statement",
+      "Checkpoints (what to check from documents)": "Customer Name/ Pan No/ Bank A/C No/ Salary Month/ Minimum Income to be check",
+      "Matching Documents (to be checked by AI), (below filled is dummy data)": "Banks Statement/ Application Form",
+      "Data Entry Matching (to be checked by AI)": "",
+      "Applicant": "Yes / No"
+    },
+    {
+      "Category": "Program Level Checklist",
+      "": "Salaried multiplier",
+      "Document (to check from)": "Last 3 months Salary slip",
+      "Checkpoints (what to check from documents)": "Customer Name/ Pan No/ Bank A/C No/ Salary Month/ Minimum Income to be check",
+      "Matching Documents (to be checked by AI), (below filled is dummy data)": "Banks Statement/ Application Form",
+      "Data Entry Matching (to be checked by AI)": "",
+      "Applicant": "Yes / No"
+    },
+    {
+      "Category": "Program Level Checklist",
+      "": "Salaried multiplier BT",
+      "Document (to check from)": "PL repayment schedule and 6 months repayment track to check EMIs",
+      "Checkpoints (what to check from documents)": "",
+      "Matching Documents (to be checked by AI), (below filled is dummy data)": "",
+      "Data Entry Matching (to be checked by AI)": "",
+      "Applicant": "Yes / No"
+    },
+    {
+      "Category": "Additional Checklist",
+      "": "",
+      "Document (to check from)": "Relationship Proof -Marriage Certificate/PAN card/Birth Certificate/Ration card/Passport/Voter ID/Aadhar card",
+      "Checkpoints (what to check from documents)": "Blood Relative details match",
+      "Matching Documents (to be checked by AI), (below filled is dummy data)": "POI/POA",
+      "Data Entry Matching (to be checked by AI)": "Yes / No",
+      "Applicant": "Yes / No"
+    },
+    {
+      "Category": "Additional Checklist",
+      "": "",
+      "Document (to check from)": "Deemed OVD (In case current residence address not available in OVD )-Rental Agreement with landlord OHP/Bank Statement/Piped Gas Bill/Aaadhar Acknowledgment/HR Allotment Letter/Utility Bills (EB, telephone/postpaid, Water tax receipt, property tax - Latest 60 days ) - Along with any one of these documents additionally OVD declaration required (at disbursement stage). Within 90 days from disbursement  THE customer should submit the address changed OVD docs to ABFL",
+      "Checkpoints (what to check from documents)": "Name/address/signature",
+      "Matching Documents (to be checked by AI), (below filled is dummy data)": "Application Form",
+      "Data Entry Matching (to be checked by AI)": "Yes / No",
+      "Applicant": "Yes / No"
+    },
+    {
+      "Category": "Additional Checklist",
+      "": "",
+      "Document (to check from)": "Dual Name Declaration/ Dual DOB Declaration",
+      "Checkpoints (what to check from documents)": "Name, check the correct/incorrect details , signature of borrowers",
+      "Matching Documents (to be checked by AI), (below filled is dummy data)": "Application Form/KYC",
+      "Data Entry Matching (to be checked by AI)": "Yes / No",
+      "Applicant": "Yes / No"
+    }
+  ]

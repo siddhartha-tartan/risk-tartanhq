@@ -1,0 +1,34 @@
+# Node.js dependencies
+node_modules
+
+# Development files
+.git
+.github
+.vscode
+.idea
+
+# Build artifacts that will be recreated
+.next
+build
+
+# Local environment files
+.env*
+!.env.production
+!.env.example
+
+# Large files and directories
+uploads/*
+!uploads/.gitkeep
+
+# Logs
+*.log
+npm-debug.log*
+
+# Mac files
+.DS_Store
+
+# Test files
+__tests__
+tests
+*.test.*
+*.spec.* 

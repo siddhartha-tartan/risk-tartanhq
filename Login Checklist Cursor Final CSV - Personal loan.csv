@@ -1,0 +1,26 @@
+Category,,Document (to check from),Checkpoints (what to check from documents),"Matching Documents (to be checked by AI), (below filled is dummy data)",Data Entry Matching (to be checked by AI),Applicant 
+Minimum Credit Parameters ,,Application form,"Physical form : Dully filled, Demographic, Cross Signed on Photograph & Signature                                                                                                                                                                                      Reference Details dully filled 
+Digital Form : There will be seprate photos and no cross sign",KYC & Income & Loan Documents,Yes / No,Yes / No
+Minimum Credit Parameters ,,Consent Mail,"Consent mail from registered e mail ID of the applicant
+(Details of consent should match with data and documents uploaded)",NA,Yes / No,Yes / No
+Minimum Credit Parameters ,,Bank Statement,"Customer Name , Bank Name, statement period, salary credit mismatches , Cointunity of bank statement  and subject to scheme/Programs",DRF/Cheques/Salary Slip (if applicable),Yes / No,Yes / No
+Minimum Credit Parameters ,,POI (Identity proof) - Aadhar card/Voter ID/Driving licence/Passport/Digi locker printouts/NREGA Printout signed by state government officials  - NOT APPLICABLE FOR PRE-APPROVED CASES (if No address change),Customer Name/DOB/Photo,Application form/Loan agreement/POA,Yes / No,Yes / No
+Minimum Credit Parameters ,,"POA (Address proof)-Aadhar card/Voter ID/Driving licence/Passport/Digi locker printouts/. Rental agreement with OHP of landlord ,(OVD declaration with OVD document), NREGA Job card . Exceptional scenarios - NOT APPLICABLE FOR PRE-APPROVED CASES (if No address change)",Customer Name/DOB/address-pincode,Application form/Loan agreement/POI,Yes / No,Yes / No
+Minimum Credit Parameters ,,Financial Proof -PAN/Form 60 ,Name /Signature /PAN Number ,POI/POA/Repayment Instruments,Yes / No,Yes / No
+Minimum Credit Parameters ,,"DOB Proof -Driving licence/Passport/Birth or corporation certificate (name is mandatory) , School leaving certificate, LIC policy (Minimum 12 month in force), aadhar card, Voter ID with affidavit stated DOB",DOB details,POI/POA,Yes / No,Yes / No
+Minimum Credit Parameters ,,"System Entry LOS - A) Sourcing Page - Scheme Group,Scheme Code,Loan Type, 
+B) Sub-Product Financials (Not applicable for pre-approved) update of Banking,RTR, Eligbility ,
+C) Dedupe Process (Probable match will get confirmation from credit, 
+D) RCU Trigger for LOD documents",,,,Yes / No
+Program Level Checklist ,Salaried multiplier ,Income Proof -Payslip & Bank Statement required subject to scheme/program & Payslip,Customer Name/ Pan No/ Bank A/C No/ Salary Month/ Minimum Income to be check,Banks Statement/ Application Form,Yes / No,Yes / No
+Program Level Checklist ,Salaried multiplier ,3 months Bank Statement ,Customer Name/ Pan No/ Bank A/C No/ Salary Month/ Minimum Income to be check,Banks Statement/ Application Form,,Yes / No
+Program Level Checklist ,Salaried multiplier ,Last 3 months Salary slip,Customer Name/ Pan No/ Bank A/C No/ Salary Month/ Minimum Income to be check,Banks Statement/ Application Form,,Yes / No
+Program Level Checklist ,Salaried multiplier BT ,PL repayment schedule and 6 months repayment track to check EMIs,,,,Yes / No
+Additional Checklist ,,Relationship Proof -Marriage Certificate/PAN card/Birth Certificate/Ration card/Passport/Voter ID/Aadhar card,Blood Relative details match,POI/POA,Yes / No,Yes / No
+Additional Checklist ,,"Deemed OVD (In case current residence address not available in OVD )-Rental Agreement with landlord OHP/Bank Statement/Piped Gas Bill/Aaadhar Acknowledgment/HR Allotment Letter/Utility Bills (EB, telephone/postpaid, Water tax receipt, property tax - Latest 60 days ) - Along with any one of these documents additionally OVD declaration required (at disbursement stage). Within 90 days from disbursement  THE customer should submit the address changed OVD docs to ABFL",Name/address/signature,Application Form,Yes / No,Yes / No
+Additional Checklist ,,Dual Name Declaration/ Dual DOB Declaration,"Name, check the correct/incorrect details , signature of borrowers",Application Form/KYC,Yes / No,Yes / No
+
+
+
+
+
