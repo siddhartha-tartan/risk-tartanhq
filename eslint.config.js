@@ -1,8 +1,8 @@
-import js from '@eslint/js';
-import tsParser from '@typescript-eslint/parser';
-import nextjs from 'eslint-config-next';
+const js = require('@eslint/js');
+const tsParser = require('@typescript-eslint/parser');
+const nextjs = require('eslint-config-next');
 
-export default [
+module.exports = [
   js.configs.recommended,
   nextjs,
   {
