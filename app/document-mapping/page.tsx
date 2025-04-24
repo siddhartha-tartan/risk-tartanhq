@@ -41,7 +41,7 @@ export default function DocumentMappingPage() {
       
       // Log first few documents OCR status
       storedDocuments.slice(0, 3).forEach((doc, idx) => {
-        console.log(`Document ${idx + 1}: ${doc.filename}`);
+        console.log(`Document ${idx + 1}: ${doc.originalFilename}`);
         console.log(`  Has OCR text: ${doc.ocrText ? 'Yes' : 'No'}`);
         if (doc.ocrText) {
           console.log(`  OCR text length: ${doc.ocrText.length}`);
@@ -51,7 +51,7 @@ export default function DocumentMappingPage() {
       
       // Sort documents by filename
       const sortedDocuments = [...storedDocuments].sort((a, b) => 
-        a.filename.localeCompare(b.filename)
+        a.originalFilename.localeCompare(b.originalFilename)
       );
       
       setDocuments(sortedDocuments);
@@ -69,7 +69,7 @@ export default function DocumentMappingPage() {
     setClassificationProgress({
       completed: 0,
       total: docs.length,
-      currentFile: docs[0].filename,
+      currentFile: docs[0].originalFilename,
     });
     
     // Start classification in background
@@ -81,10 +81,10 @@ export default function DocumentMappingPage() {
         setClassificationProgress({
           completed: i,
           total: docs.length,
-          currentFile: doc.filename,
+          currentFile: doc.originalFilename,
         });
         
-        console.log(`Background classification: ${doc.filename}`);
+        console.log(`Background classification: ${doc.originalFilename}`);
         
         // Classify document based on OCR text
         let classifiedType = 'other';
@@ -93,16 +93,16 @@ export default function DocumentMappingPage() {
           const ocrText = doc.ocrText.toLowerCase();
           
           if (ocrText.includes('aadhar') || ocrText.includes('आधार') || 
-              ocrText.includes('unique identification') || doc.filename.toLowerCase().includes('aadhar')) {
+              ocrText.includes('unique identification') || doc.originalFilename.toLowerCase().includes('aadhar')) {
             classifiedType = 'identity_proof';
           } else if (ocrText.includes('salary') || ocrText.includes('pay slip') || 
-                    doc.filename.toLowerCase().includes('salary')) {
+                    doc.originalFilename.toLowerCase().includes('salary')) {
             classifiedType = 'income_proof';
           } else if (ocrText.includes('bank') || ocrText.includes('statement') ||
-                    doc.filename.toLowerCase().includes('bank')) {
+                    doc.originalFilename.toLowerCase().includes('bank')) {
             classifiedType = 'bank_statement';
           } else if (ocrText.includes('address') || ocrText.includes('पता') ||
-                    doc.filename.toLowerCase().includes('address')) {
+                    doc.originalFilename.toLowerCase().includes('address')) {
             classifiedType = 'address_proof';
           }
         }
@@ -147,7 +147,7 @@ export default function DocumentMappingPage() {
 
   useEffect(() => {
     if (currentDocument) {
-      console.log('Current document:', currentDocument.filename);
+      console.log('Current document:', currentDocument.originalFilename);
       console.log('OCR text available:', !!currentDocument.ocrText);
       if (currentDocument.ocrText) {
         console.log('OCR text length:', currentDocument.ocrText.length);
@@ -182,7 +182,7 @@ export default function DocumentMappingPage() {
     // Assign default document types automatically (silently)
     documents.forEach(doc => {
       // Try to guess document type from filename
-      const defaultType = getDefaultDocumentType(doc.filename);
+      const defaultType = getDefaultDocumentType(doc.originalFilename);
       documentStore.updateDocument(doc.id, {
         aiClassifiedType: defaultType,
         userConfirmedType: defaultType,
@@ -229,8 +229,8 @@ export default function DocumentMappingPage() {
   };
 
   // Helper function to get icon based on file extension
-  const getDocumentIcon = (filename: string) => {
-    const extension = filename.split('.').pop()?.toLowerCase();
+  const getDocumentIcon = (originalFilename: string) => {
+    const extension = originalFilename.split('.').pop()?.toLowerCase();
     return fileTypeIcons[extension as keyof typeof fileTypeIcons] || fileTypeIcons.default;
   };
 
@@ -331,7 +331,7 @@ export default function DocumentMappingPage() {
                       <p className={`text-sm font-medium truncate ${
                         index === currentDocIndex ? 'text-indigo-700' : 'text-gray-700'
                       }`}>
-                        {doc.filename}
+                        {doc.originalFilename}
                       </p>
                       <div className="flex items-center">
                         <p className={`text-xs truncate ${
@@ -353,7 +353,7 @@ export default function DocumentMappingPage() {
                   {/* Document Name & OCR Text Edit */}
                   <div className="p-4 border-b border-gray-200 bg-white">
                     <h2 className="text-lg font-semibold text-gray-800 mb-2">
-                      {currentDocument.filename}
+                      {currentDocument.originalFilename}
                     </h2>
                   </div>
                   
@@ -363,12 +363,12 @@ export default function DocumentMappingPage() {
                     <div className="w-1/2 border-r border-gray-200 overflow-y-auto p-4 bg-gray-50">
                       <h3 className="text-sm font-semibold text-gray-700 mb-2">Document Preview</h3>
                       <div className="bg-white rounded-md shadow-sm p-4 h-full flex items-center justify-center">
-                        {currentDocument.filename ? (
+                        {currentDocument.originalFilename ? (
                           currentDocument.filetype === 'application/pdf' ? (
                             <iframe
-                              src={`/api/documents/preview?filename=${encodeURIComponent(currentDocument.filename)}`}
+                              src={`/api/documents/preview?filename=${encodeURIComponent(currentDocument.originalFilename)}`}
                               className="w-full h-full min-h-[400px]"
-                              title={currentDocument.filename}
+                              title={currentDocument.originalFilename}
                               onError={(e) => {
                                 // Handle iframe load error
                                 const target = e.target as HTMLIFrameElement;
@@ -391,8 +391,8 @@ export default function DocumentMappingPage() {
                           ) : (
                             <div className="h-full w-full flex items-center justify-center">
                               <img
-                                src={`/api/documents/preview?filename=${encodeURIComponent(currentDocument.filename)}`}
-                                alt={currentDocument.filename}
+                                src={`/api/documents/preview?filename=${encodeURIComponent(currentDocument.originalFilename)}`}
+                                alt={currentDocument.originalFilename}
                                 className="max-h-full max-w-full object-contain"
                                 onError={(e) => {
                                   // Handle image load error
@@ -418,7 +418,7 @@ export default function DocumentMappingPage() {
                         ) : (
                           <div className="text-center">
                             <Image
-                              src={getDocumentIcon(currentDocument.filename)}
+                              src={getDocumentIcon(currentDocument.originalFilename)}
                               alt="Document Icon"
                               width={64}
                               height={64}
