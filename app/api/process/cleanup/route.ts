@@ -11,8 +11,15 @@ function getFileAgeInHours(filePath: string): number {
   return ageInHours;
 }
 
+// Define the cleanup result type
+type CleanupResult = {
+  deleted: number;
+  errors: number;
+  message: string;
+};
+
 // Function to clean up uploaded ZIP files older than a threshold
-async function cleanupUploadsDirectory(ageThresholdHours = 24) {
+async function cleanupUploadsDirectory(ageThresholdHours = 24): Promise<CleanupResult> {
   try {
     const uploadsDir = path.join(process.cwd(), 'uploads');
     if (!fs.existsSync(uploadsDir)) {
@@ -68,7 +75,7 @@ async function cleanupUploadsDirectory(ageThresholdHours = 24) {
 }
 
 // Function to clean up extracted files from public/uploads
-async function cleanupPublicUploadsDirectory(ageThresholdHours = 24) {
+async function cleanupPublicUploadsDirectory(ageThresholdHours = 24): Promise<CleanupResult> {
   try {
     const publicUploadsDir = path.join(process.cwd(), 'public', 'uploads');
     if (!fs.existsSync(publicUploadsDir)) {
@@ -133,8 +140,8 @@ export async function GET(request: NextRequest) {
     const mode = url.searchParams.get('mode') || 'all';
     
     let results = {
-      uploads: null,
-      publicUploads: null,
+      uploads: null as CleanupResult | null,
+      publicUploads: null as CleanupResult | null,
       totalDeleted: 0,
       totalErrors: 0
     };
