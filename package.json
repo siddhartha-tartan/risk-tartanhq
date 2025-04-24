@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Document Processing Application",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "next dev --port 3000 --hostname 0.0.0.0",
     "build": "next build",
@@ -43,6 +44,7 @@
     "@typescript-eslint/eslint-plugin": "^8.31.0",
     "@typescript-eslint/parser": "^8.31.0",
     "eslint": "^9.25.1",
+    "eslint-config-next": "^15.3.1",
     "husky": "^9.1.7",
     "lint-staged": "^15.5.1",
     "tsc-files": "^1.1.4"
