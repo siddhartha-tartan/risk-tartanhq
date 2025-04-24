@@ -28,6 +28,10 @@ export interface Document {
   localStorageReference?: string; // For preview
   ocrText?: string;
   errorInfo?: string;
+  aiClassifiedType?: string; // Type assigned by AI classification
+  classificationConfidence?: number; // Confidence score of classification
+  userConfirmedType?: string; // Type confirmed/selected by user
+  finalDocumentType?: string; // Final document type after all processing
 }
 
 export interface ExtractedData {
