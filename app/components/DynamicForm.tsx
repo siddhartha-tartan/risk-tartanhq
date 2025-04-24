@@ -269,7 +269,7 @@ export default function DynamicForm({
           )}
 
           {/* Add field button for nested sections */}
-          {!isReadOnly && field.type === 'nested' && (
+          {!isReadOnly && field.nested && (
             <button
               type="button"
               onClick={() => onAddField(field.id)}
