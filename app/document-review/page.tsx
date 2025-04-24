@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/legacy/image';
 import { documentStore } from '@/utils/documentStore';
-import { personalLoanDocumentTypes } from '../document-mapping/page';
+import { personalLoanDocumentTypes, getDocumentTypeName as getDocType } from '@/models/DocumentTypes';
 
 // File type to icon mapping
 const fileTypeIcons = {

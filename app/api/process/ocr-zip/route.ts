@@ -204,7 +204,7 @@ async function extractFilesFromZip(zipPath: string, requestId: string) {
     if (validFiles.length === 0) {
       // Check what types of files were skipped
       const reasons = skippedFiles.map(f => f.reason);
-      const uniqueReasons = [...new Set(reasons)];
+      const uniqueReasons = Array.from(new Set(reasons));
       
       if (skippedFiles.length === 0) {
         // Clean up the empty directory before throwing
