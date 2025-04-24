@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/legacy/image';
 import { documentStore } from '@/utils/documentStore';
+import { personalLoanDocumentTypes, getDocumentTypeName } from '@/models/DocumentTypes';
 
 // File type to icon mapping
 const fileTypeIcons = {
@@ -13,19 +14,6 @@ const fileTypeIcons = {
   png: '/icons/png-icon.png',
   default: '/icons/document-icon.png',
 };
-
-// List of document types for personal loans
-export const personalLoanDocumentTypes = [
-  { id: 'identity_proof', name: 'Identity Proof', description: 'Proof of identity such as Aadhar Card, PAN Card, Passport, Voter ID' },
-  { id: 'address_proof', name: 'Address Proof', description: 'Proof of residence like utility bills, rental agreement, property tax receipt' },
-  { id: 'income_proof', name: 'Income Proof', description: 'Salary slips, Form 16, ITR for last 2 years, bank statements' },
-  { id: 'photo', name: 'Photograph', description: 'Recent passport-sized photograph' },
-  { id: 'employment_proof', name: 'Employment Proof', description: 'Employment certificate, appointment letter, business registration' },
-  { id: 'bank_statement', name: 'Bank Statement', description: 'Last 6 months bank statement showing income credits' },
-  { id: 'loan_application', name: 'Loan Application', description: 'Completed loan application form' },
-  { id: 'property_documents', name: 'Property Documents', description: 'For secured loans, documents of the property being mortgaged' },
-  { id: 'other', name: 'Other Document', description: 'Any other supporting document' }
-];
 
 export default function DocumentMappingPage() {
   const [documents, setDocuments] = useState<any[]>([]);
@@ -244,12 +232,6 @@ export default function DocumentMappingPage() {
   const getDocumentIcon = (filename: string) => {
     const extension = filename.split('.').pop()?.toLowerCase();
     return fileTypeIcons[extension as keyof typeof fileTypeIcons] || fileTypeIcons.default;
-  };
-
-  // Helper function to get document type name by ID
-  const getDocumentTypeName = (typeId: string) => {
-    const docType = personalLoanDocumentTypes.find(type => type.id === typeId);
-    return docType ? docType.name : 'Unknown';
   };
 
   if (error && documents.length === 0) {
