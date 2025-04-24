@@ -28,7 +28,7 @@ export default function LlmProcessingPage() {
 
         // Sort documents by filename
         const sortedDocuments = [...documents].sort((a, b) => 
-          a.filename.localeCompare(b.filename)
+          a.originalFilename.localeCompare(b.originalFilename)
         );
 
         // Check if documents are already classified (from background process)
@@ -44,7 +44,7 @@ export default function LlmProcessingPage() {
         setProcessingStatus({
           completed: 0,
           total: sortedDocuments.length,
-          currentFile: sortedDocuments[0].filename,
+          currentFile: sortedDocuments[0].originalFilename,
         });
         
         // Process each document with a delay to simulate LLM API calls
@@ -54,40 +54,40 @@ export default function LlmProcessingPage() {
           setProcessingStatus({
             completed: i,
             total: sortedDocuments.length,
-            currentFile: doc.filename,
+            currentFile: doc.originalFilename,
           });
           
-          console.log(`Processing document: ${doc.filename}`);
+          console.log(`Processing document: ${doc.originalFilename}`);
           
           // Skip documents that are already classified from background process
           if (doc.aiClassifiedType) {
-            console.log(`Document ${doc.filename} already classified as ${doc.aiClassifiedType}, skipping`);
+            console.log(`Document ${doc.originalFilename} already classified as ${doc.aiClassifiedType}, skipping`);
             continue;
           }
           
           // Simulate LLM classification by assigning document types
-          // In a real application, this would call an LLM API with the document filename
+          // In a real application, this would call an LLM API with the document originalFilename
           // and OCR text to classify the document
           
           let classifiedType;
           
-          // Simplified document type inference based on filename
+          // Simplified document type inference based on originalFilename
           // This is a mock implementation - in production, this would be an LLM call
           if (doc.ocrText) {
             // Simple keyword matching for demo purposes - in real app would use LLM
             const ocrText = doc.ocrText.toLowerCase();
             
             if (ocrText.includes('aadhar') || ocrText.includes('आधार') || 
-                ocrText.includes('unique identification') || doc.filename.toLowerCase().includes('aadhar')) {
+                ocrText.includes('unique identification') || doc.originalFilename.toLowerCase().includes('aadhar')) {
               classifiedType = 'identity_proof';
             } else if (ocrText.includes('salary') || ocrText.includes('pay slip') || 
-                      doc.filename.toLowerCase().includes('salary')) {
+                      doc.originalFilename.toLowerCase().includes('salary')) {
               classifiedType = 'income_proof';
             } else if (ocrText.includes('bank') || ocrText.includes('statement') ||
-                      doc.filename.toLowerCase().includes('bank')) {
+                      doc.originalFilename.toLowerCase().includes('bank')) {
               classifiedType = 'bank_statement';
             } else if (ocrText.includes('address') || ocrText.includes('पता') ||
-                      doc.filename.toLowerCase().includes('address')) {
+                      doc.originalFilename.toLowerCase().includes('address')) {
               classifiedType = 'address_proof';
             } else {
               // Fallback to 'other'

@@ -29,7 +29,7 @@ export default function DocumentReviewPage() {
     } else {
       // Sort documents by filename
       const sortedDocuments = [...storedDocuments].sort((a, b) => 
-        a.filename.localeCompare(b.filename)
+        a.originalFilename.localeCompare(b.originalFilename)
       );
       
       // Auto-select AI classifications as default user-confirmed selections
@@ -140,7 +140,7 @@ export default function DocumentReviewPage() {
                     </div>
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-md font-medium text-gray-800">{doc.filename}</h3>
+                    <h3 className="text-md font-medium text-gray-800">{doc.originalFilename}</h3>
                     <p className="text-sm text-gray-500">
                       AI classified as: {doc.aiClassifiedType ? getDocumentTypeName(doc.aiClassifiedType) : 'Unclassified'}
                     </p>
@@ -196,7 +196,7 @@ export default function DocumentReviewPage() {
 }
 
 // Helper function to get icon based on file extension
-const getDocumentIcon = (filename: string) => {
-  const extension = filename.split('.').pop()?.toLowerCase();
+const getDocumentIcon = (originalFilename: string) => {
+  const extension = originalFilename.split('.').pop()?.toLowerCase();
   return fileTypeIcons[extension as keyof typeof fileTypeIcons] || fileTypeIcons.default;
 }; 
