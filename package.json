@@ -10,7 +10,7 @@
     "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
     "typecheck": "tsc --noEmit",
     "find-ts-errors": "node scripts/find-ts-errors.js",
-    "prepare": "node -e \"try { require('husky').install() } catch (e) { if (e.code !== 'MODULE_NOT_FOUND') throw e }\"",
+    "prepare": "node -e \"\"",
     "proxy": "sudo node proxy-server.js",
     "https-proxy": "sudo node https-proxy-server.js"
   },
