@@ -1,0 +1,40 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "functions": {
+    "app/api/process/ocr-zip/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/process/extract-data/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/process/generate-ai-insights/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/process/verify-checklist/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/process/verify-loan-checklist/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/process/analyze-business-documents/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/process/generate-cam-summary/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/documents/upload-zip/route.ts": {
+      "maxDuration": 60
+    }
+  },
+  "env": {
+    "OPENAI_API_KEY": "@openai_api_key",
+    "OCR_API_URL": "@ocr_api_url",
+    "OCR_API_USERNAME": "@ocr_api_username",
+    "OCR_API_PASSWORD": "@ocr_api_password",
+    "AWS_ACCESS_KEY_ID": "@aws_access_key_id",
+    "AWS_SECRET_ACCESS_KEY": "@aws_secret_access_key",
+    "AWS_REGION": "@aws_region",
+    "S3_BUCKET": "@s3_bucket"
+  }
+}

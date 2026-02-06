@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { EnhancedDummyData } from '@/utils/mockingState';
 import OpenAI from 'openai';
 
 // Initialize OpenAI client
@@ -16,12 +17,73 @@ interface Document {
 export async function POST(request: NextRequest) {
   try {
     const { documents } = await request.json() as { documents: Document[] };
+
+    // Check for mock mode header
+    const mockMode = request.headers.get('X-Mock-Mode');
+    if (mockMode === 'enabled') {
+      console.log('🎭 MOCK MODE: Returning enhanced loan checklist dummy data');
+      
+      // Add 15-second realistic processing delay for demo
+      await new Promise(resolve => setTimeout(resolve, 15000));
+      
+      return NextResponse.json({
+        success: true,
+        loanChecklistResults: EnhancedDummyData.loanChecklist.checklist,
+        rawLlmOutput: `🚨 **LOAN CHECKLIST VERIFICATION COMPLETE** - Enhanced Demo Mode
+
+✨ **MOCK MODE ACTIVE** - Showcasing Advanced Compliance Verification
+
+📋 **Checklist Summary:**
+- Total Checkpoints: ${EnhancedDummyData.loanChecklist.checklist.length}
+- Verified Items: ${EnhancedDummyData.loanChecklist.checklist.filter((item: any) => item['Data Entry Matching (Answer Yes or No)'] === 'YES').length}
+- Compliance Rate: ${Math.round((EnhancedDummyData.loanChecklist.checklist.filter((item: any) => item['Data Entry Matching (Answer Yes or No)'] === 'YES').length / EnhancedDummyData.loanChecklist.checklist.length) * 100)}%
+- Risk Assessment: HIGH (Mandatory Documents Missing)
+
+🏆 **Key Verification Results:**
+${EnhancedDummyData.loanChecklist.checklist.map((item: any, index: number) => 
+  `${index + 1}. ${item.Document} - ${item['Data Entry Matching (Answer Yes or No)'] === 'YES' ? '✅ VERIFIED' : '⚠️ ATTENTION'}`
+).join('\n')}
+
+🎯 **AI Compliance Features:**
+- Automated document verification
+- Cross-reference validation
+- Risk-based scoring
+- Regulatory compliance checks
+- Gap analysis reporting
+
+🚨 **MANDATORY DOCUMENTS NOT AVAILABLE:**
+${EnhancedDummyData.loanChecklist.checklist
+  .filter((item: any) => item['Data Entry Matching (Answer Yes or No)'] === 'NO')
+  .map((item: any) => `• ${item.Document}: ${item['AI Comments (reasoning behind decision)']}`)
+  .join('\n')}
+
+🔴 **CRITICAL ITEMS MISSING:**
+- 3-Month Complete Salary History (Only 1 month provided)
+- Employment Verification Letter (Not submitted)
+- Utility Bills for Address Verification (Missing)
+- Complete Bank Statement Coverage (Incomplete)
+
+💡 **Business Impact:**
+- Verification Time: 45 seconds (vs 30+ minutes manual)  
+- Compliance Issues Detected: 4 critical missing documents
+- Overall Compliance Rate: ${Math.round((EnhancedDummyData.loanChecklist.checklist.filter((item: any) => item['Data Entry Matching (Answer Yes or No)'] === 'YES').length / EnhancedDummyData.loanChecklist.checklist.length) * 100)}%
+- Risk Level: HIGH - Cannot proceed without mandatory documents
+
+This enhanced demo showcases our intelligent compliance verification system.`,
+        processingTime: '45s',
+        complianceRate: Math.round((EnhancedDummyData.loanChecklist.checklist.filter((item: any) => item['Data Entry Matching (Answer Yes or No)'] === 'YES').length / EnhancedDummyData.loanChecklist.checklist.length) * 100),
+        totalChecks: EnhancedDummyData.loanChecklist.checklist.length,
+        verifiedItems: EnhancedDummyData.loanChecklist.checklist.filter((item: any) => item['Data Entry Matching (Answer Yes or No)'] === 'YES').length,
+        mandatoryMissing: EnhancedDummyData.loanChecklist.checklist.filter((item: any) => item['Data Entry Matching (Answer Yes or No)'] === 'NO').length,
+        riskLevel: 'HIGH'
+      });
+    }
     
     // Format OCR data for the prompt
     const ocrData = documents.map(doc => {
       // Try to guess the document type from filename
       let docType = 'Unknown Document';
-      const filename = doc.filename.toLowerCase();
+      const filename = doc && doc.filename ? doc.filename.toLowerCase() : '';
       
       if (filename.includes('aadhar') || filename.includes('aadhaar')) {
         docType = 'Aadhaar Card';
@@ -66,6 +128,8 @@ export async function POST(request: NextRequest) {
         content: doc.ocrText || 'No OCR text available'
       };
     });
+
+
 
     // Loan checklist template to be populated
     const template = [

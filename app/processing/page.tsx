@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { documentStore } from '@/utils/documentStore';
+import AppLayout from '@/app/components/AppLayout';
 
 // Component that uses useSearchParams
 function ProcessingContent() {
@@ -12,6 +13,8 @@ function ProcessingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const s3Key = searchParams.get('s3Key');
+  const docType = searchParams.get('docType'); // Get document type parameter (business or personal)
+  const isBusinessLoan = docType === 'business';
 
   useEffect(() => {
     if (!s3Key) {
@@ -31,7 +34,7 @@ function ProcessingContent() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ s3Key }),
+          body: JSON.stringify({ s3Key, docType }), // Pass document type to the API
         });
 
         if (!ocrResponse.ok) {
@@ -108,11 +111,12 @@ function ProcessingContent() {
               filePath: file.path,
               type: inferDocumentType(file.name),
               filetype: file.type || (file.name.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'image/jpeg'),
-              ocrText: typeof ocrText === 'string' ? ocrText : String(ocrText)
+              ocrText: typeof ocrText === 'string' ? ocrText : String(ocrText),
+              userSession: s3Key // Add session identifier to link documents to this upload session
             };
           });
           
-          console.log(`Created ${processedDocuments.length} documents from extracted files`);
+          console.log(`Created ${processedDocuments.length} documents from extracted files with session key: ${s3Key}`);
         } else if (ocrResult && ocrResult.result) {
           // Fallback: Try to create documents from OCR result directly
           console.log('No extracted files found, trying to create documents from OCR results directly');
@@ -152,11 +156,33 @@ function ProcessingContent() {
           setError('');
         }
         
+        // Make sure all documents have OCR text
+        const validDocuments = processedDocuments.filter((doc: any) => {
+          if (!doc.ocrText || doc.ocrText.trim().length === 0) {
+            console.warn(`Document ${doc.originalFilename} has no OCR text, skipping`);
+            return false;
+          }
+          return true;
+        });
+        
+        if (validDocuments.length === 0) {
+          setError('No valid OCR data could be extracted from your documents. Please try a different file.');
+          return;
+        }
+        
         // Store documents in our document store
         documentStore.clearDocuments();
-        processedDocuments.forEach((doc: any) => {
-          documentStore.addDocument(doc);
+        validDocuments.forEach((doc: any) => {
+          // Add the document to the store with its OCR text
+          documentStore.addDocument({
+            ...doc,
+            userSession: s3Key, // Make sure the session ID is stored
+            uploadTimestamp: new Date(),
+            processingStatus: 'completed'
+          });
         });
+        
+        console.log(`Stored ${validDocuments.length} documents with OCR text in document store`);
 
         // Wait to simulate processing time
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -166,8 +192,12 @@ function ProcessingContent() {
         setStatus('Preparing OCR results for review...');
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        // Navigate to document mapping page for OCR review
-        router.push('/document-mapping');
+        // Navigate to appropriate document mapping page based on document type
+        if (isBusinessLoan) {
+          router.push(`/business-document-mapping?s3Key=${encodeURIComponent(s3Key)}`);
+        } else {
+          router.push(`/document-mapping?s3Key=${encodeURIComponent(s3Key)}`);
+        }
       } catch (err: any) {
         console.error('Processing error:', err);
         setError(err.message || 'An error occurred during processing');
@@ -175,95 +205,97 @@ function ProcessingContent() {
     };
 
     processDocuments();
-  }, [s3Key, router]);
+  }, [s3Key, docType, isBusinessLoan, router]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-      <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-md">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Document Processing</h1>
-          <p className="text-gray-600">
-            Your client documents are being processed for financial assessment. This typically takes 1-2 minutes.
-          </p>
+    <AppLayout>
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+        <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-md">
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Document Processing</h1>
+            <p className="text-gray-600">
+              Your client documents are being processed for financial assessment. This typically takes 1-2 minutes.
+            </p>
+          </div>
+
+          {error && (
+            <div className="mb-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg">
+              <p>Something went wrong. Please check your network connection and try again.</p>
+              <p className="text-xs mt-2 text-gray-600">Error details: {error}</p>
+              <div className="mt-4 flex space-x-4">
+                <button
+                  onClick={() => router.push('/upload')}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                >
+                  Return to Upload
+                </button>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                >
+                  Retry Processing
+                </button>
+              </div>
+            </div>
+          )}
+
+          {!error && (
+            <div className="mb-8">
+              <div className="mb-4">
+                <div className="flex items-center mb-2">
+                  <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
+                    processingStep >= 1 ? 'bg-indigo-600 text-white' : 'bg-gray-200'
+                  }`}>
+                    {processingStep > 1 ? '✓' : '1'}
+                  </div>
+                  <div className="ml-4">
+                    <h2 className="text-sm font-medium text-gray-900">OCR Processing</h2>
+                    <p className="text-sm text-gray-500">Extracting financial data from documents</p>
+                  </div>
+                </div>
+                
+                {/* Line connector */}
+                <div className="ml-4 pl-0.5 h-10 border-l-2 border-indigo-600"></div>
+                
+                <div className="flex items-center mb-2">
+                  <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
+                    processingStep >= 2 ? 'bg-indigo-600 text-white' : 'bg-gray-200'
+                  }`}>
+                    {processingStep > 2 ? '✓' : '2'}
+                  </div>
+                  <div className="ml-4">
+                    <h2 className="text-sm font-medium text-gray-900">Document Analysis</h2>
+                    <p className="text-sm text-gray-500">Categorizing and validating financial records</p>
+                  </div>
+                </div>
+                
+                {/* Line connector */}
+                <div className="ml-4 pl-0.5 h-10 border-l-2 border-indigo-600"></div>
+                
+                <div className="flex items-center">
+                  <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
+                    processingStep >= 3 ? 'bg-indigo-600 text-white' : 'bg-gray-200'
+                  }`}>
+                    {processingStep > 3 ? '✓' : '3'}
+                  </div>
+                  <div className="ml-4">
+                    <h2 className="text-sm font-medium text-gray-900">Finalizing</h2>
+                    <p className="text-sm text-gray-500">Preparing document analysis for review</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!error && (
+            <div className="text-center">
+              <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent align-middle"></div>
+              <p className="mt-4 text-sm font-medium text-gray-700">{status}</p>
+            </div>
+          )}
         </div>
-
-        {error && (
-          <div className="mb-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg">
-            <p>Something went wrong. Please check your network connection and try again.</p>
-            <p className="text-xs mt-2 text-gray-600">Error details: {error}</p>
-            <div className="mt-4 flex space-x-4">
-              <button
-                onClick={() => router.push('/upload')}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-              >
-                Return to Upload
-              </button>
-              <button
-                onClick={() => window.location.reload()}
-                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
-              >
-                Retry Processing
-              </button>
-            </div>
-          </div>
-        )}
-
-        {!error && (
-          <div className="mb-8">
-            <div className="mb-4">
-              <div className="flex items-center mb-2">
-                <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
-                  processingStep >= 1 ? 'bg-indigo-600 text-white' : 'bg-gray-200'
-                }`}>
-                  {processingStep > 1 ? '✓' : '1'}
-                </div>
-                <div className="ml-4">
-                  <h2 className="text-sm font-medium text-gray-900">OCR Processing</h2>
-                  <p className="text-sm text-gray-500">Extracting financial data from documents</p>
-                </div>
-              </div>
-              
-              {/* Line connector */}
-              <div className="ml-4 pl-0.5 h-10 border-l-2 border-indigo-600"></div>
-              
-              <div className="flex items-center mb-2">
-                <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
-                  processingStep >= 2 ? 'bg-indigo-600 text-white' : 'bg-gray-200'
-                }`}>
-                  {processingStep > 2 ? '✓' : '2'}
-                </div>
-                <div className="ml-4">
-                  <h2 className="text-sm font-medium text-gray-900">Document Analysis</h2>
-                  <p className="text-sm text-gray-500">Categorizing and validating financial records</p>
-                </div>
-              </div>
-              
-              {/* Line connector */}
-              <div className="ml-4 pl-0.5 h-10 border-l-2 border-indigo-600"></div>
-              
-              <div className="flex items-center">
-                <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
-                  processingStep >= 3 ? 'bg-indigo-600 text-white' : 'bg-gray-200'
-                }`}>
-                  {processingStep > 3 ? '✓' : '3'}
-                </div>
-                <div className="ml-4">
-                  <h2 className="text-sm font-medium text-gray-900">Finalizing</h2>
-                  <p className="text-sm text-gray-500">Preparing document analysis for review</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {!error && (
-          <div className="text-center">
-            <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent align-middle"></div>
-            <p className="mt-4 text-sm font-medium text-gray-700">{status}</p>
-          </div>
-        )}
       </div>
-    </div>
+    </AppLayout>
   );
 }
 

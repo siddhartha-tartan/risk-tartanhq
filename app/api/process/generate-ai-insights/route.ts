@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { EnhancedDummyData } from '@/utils/mockingState';
 import OpenAI from 'openai';
 
 // Initialize OpenAI client
@@ -23,12 +24,52 @@ interface Insight {
 export async function POST(request: NextRequest) {
   try {
     const { documents } = await request.json() as { documents: Document[] };
+
+    // Check for mock mode header
+    const mockMode = request.headers.get('X-Mock-Mode');
+    if (mockMode === 'enabled') {
+      console.log('🎭 MOCK MODE: Returning enhanced AI insights dummy data');
+      
+      // Add 15-second realistic processing delay for demo
+      await new Promise(resolve => setTimeout(resolve, 15000));
+      
+      return NextResponse.json({
+        success: true,
+        insights: EnhancedDummyData.financialInsights.insights,
+        rawLlmOutput: `💡 **AI INSIGHTS GENERATION COMPLETE** - Enhanced Demo Mode
+
+✨ **MOCK MODE ACTIVE** - Showcasing Advanced AI Financial Intelligence
+
+🧠 **AI Analysis Summary:**
+- Total Insights Generated: ${EnhancedDummyData.financialInsights.insights.length}
+- Risk Patterns Identified: ${EnhancedDummyData.financialInsights.insights.filter((i: any) => i.type === 'warning' || i.type === 'danger').length}
+- Positive Indicators: ${EnhancedDummyData.financialInsights.insights.filter((i: any) => i.type === 'success').length}
+- Average Confidence: ${Math.round(EnhancedDummyData.financialInsights.insights.reduce((acc: number, i: any) => acc + (i.confidence || 90), 0) / EnhancedDummyData.financialInsights.insights.length)}%
+
+🎯 **Key AI Discoveries:**
+${EnhancedDummyData.financialInsights.insights.map((insight: any, index: number) => 
+  `${index + 1}. ${insight.title} (${insight.type.toUpperCase()} - ${insight.confidence || 90}% confidence)`
+).join('\n')}
+
+🚀 **Advanced AI Features:**
+- Document cross-verification
+- Anomaly detection algorithms  
+- Risk pattern recognition
+- Financial behavior analysis
+- Compliance gap identification
+
+This enhanced demo demonstrates our cutting-edge AI insights engine.`,
+        processingTime: '1.2s',
+        totalInsights: EnhancedDummyData.financialInsights.insights.length,
+        confidence: 92
+      });
+    }
     
     // Format OCR data for the prompt
     const ocrData = documents.map(doc => {
       // Try to guess the document type from filename
       let docType = 'Unknown Document';
-      const filename = doc.filename.toLowerCase();
+      const filename = doc && doc.filename ? doc.filename.toLowerCase() : '';
       
       if (filename.includes('aadhar') || filename.includes('aadhaar')) {
         docType = 'Aadhaar Card';

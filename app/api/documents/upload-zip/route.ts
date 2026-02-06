@@ -1,16 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
+import { writeFile, mkdir, unlink } from 'fs/promises';
 import { existsSync } from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { spawn } from 'child_process';
+import os from 'os';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
-// S3 bucket name
-const BUCKET_NAME = 'ai-policy-benchmark';
+// S3 configuration
+const BUCKET_NAME = process.env.S3_BUCKET || 'ai-policy-benchmark';
+const AWS_REGION = process.env.AWS_REGION || 'ap-south-1';
+
+// Initialize S3 client
+const s3Client = new S3Client({
+  region: AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+  },
+});
 
 export async function POST(request: NextRequest) {
   const startTime = new Date().toISOString();
   console.log(`[${startTime}] Upload API route called`);
+  
+  let tempFilePath: string | null = null;
   
   try {
     const formData = await request.formData();
@@ -27,7 +40,7 @@ export async function POST(request: NextRequest) {
     console.log(`[${new Date().toISOString()}] File received: ${file.name}, size: ${file.size} bytes, type: ${file.type}`);
 
     // Check if the file is a zip file
-    if (file.type !== 'application/zip') {
+    if (file.type !== 'application/zip' && !file.name.endsWith('.zip')) {
       console.error(`[${new Date().toISOString()}] Invalid file type: ${file.type}`);
       return NextResponse.json(
         { error: 'Only ZIP files are allowed' },
@@ -40,127 +53,91 @@ export async function POST(request: NextRequest) {
     const fileName = `${sessionId}_${file.name}`;
     console.log(`[${new Date().toISOString()}] Generated session ID: ${sessionId}`);
 
-    // Create the uploads directory if it doesn't exist
-    const uploadDir = path.join(process.cwd(), 'uploads');
-    console.log(`[${new Date().toISOString()}] Upload directory path: ${uploadDir}`);
+    // Convert file to buffer
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
+    console.log(`[${new Date().toISOString()}] File buffer created, size: ${fileBuffer.length} bytes`);
+
+    // Use /tmp directory for temporary storage (works in Vercel serverless)
+    const tempDir = os.tmpdir();
+    tempFilePath = path.join(tempDir, fileName);
     
     try {
-      if (!existsSync(uploadDir)) {
-        console.log(`[${new Date().toISOString()}] Creating uploads directory: ${uploadDir}`);
-        await mkdir(uploadDir, { recursive: true });
-      }
-    } catch (error) {
-      console.error(`[${new Date().toISOString()}] Error creating uploads directory:`, error);
-      // Continue anyway, as we'll catch the file write error if directory doesn't exist
+      // Save to temp directory (needed for some processing operations)
+      await writeFile(tempFilePath, fileBuffer);
+      console.log(`[${new Date().toISOString()}] File saved to temp: ${tempFilePath}`);
+    } catch (tempWriteError) {
+      console.error(`[${new Date().toISOString()}] Error writing to temp:`, tempWriteError);
+      // Continue anyway - we can still upload to S3 directly from buffer
     }
 
-    // Save the file to the uploads directory
-    const filePath = path.join(uploadDir, fileName);
-    console.log(`[${new Date().toISOString()}] Saving file to: ${filePath}`);
-    const fileBuffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(filePath, fileBuffer);
-    console.log(`[${new Date().toISOString()}] File saved successfully, size: ${fileBuffer.length} bytes`);
+    try {
+      // Upload to S3 using AWS SDK v3
+      console.log(`[${new Date().toISOString()}] Starting S3 upload to bucket: ${BUCKET_NAME}`);
+      
+      const uploadCommand = new PutObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: fileName,
+        Body: fileBuffer,
+        ContentType: 'application/zip',
+      });
 
-    // Execute the Python script to upload the file to S3
-    const pythonScriptPath = path.join(process.cwd(), 'scripts', 's3_upload.py');
-    console.log(`[${new Date().toISOString()}] Executing Python script: ${pythonScriptPath}`);
-    console.log(`[${new Date().toISOString()}] Command: python ${pythonScriptPath} ${filePath} ${BUCKET_NAME}`);
+      await s3Client.send(uploadCommand);
+      
+      const s3Url = `s3://${BUCKET_NAME}/${fileName}`;
+      console.log(`[${new Date().toISOString()}] Upload successful: ${s3Url}`);
 
-    if (!existsSync(pythonScriptPath)) {
-      console.error(`[${new Date().toISOString()}] Python script not found at path: ${pythonScriptPath}`);
+      // Clean up temp file if it exists
+      if (tempFilePath && existsSync(tempFilePath)) {
+        try {
+          await unlink(tempFilePath);
+          console.log(`[${new Date().toISOString()}] Cleaned up temp file`);
+        } catch (cleanupError) {
+          console.error(`[${new Date().toISOString()}] Error cleaning up temp file:`, cleanupError);
+        }
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: 'File uploaded successfully',
+        s3Key: fileName,
+        s3Url: s3Url,
+      });
+
+    } catch (s3Error: any) {
+      console.error(`[${new Date().toISOString()}] S3 upload failed:`, s3Error);
+      
+      // Clean up temp file on error
+      if (tempFilePath && existsSync(tempFilePath)) {
+        try {
+          await unlink(tempFilePath);
+        } catch (cleanupError) {
+          console.error(`[${new Date().toISOString()}] Error cleaning up temp file:`, cleanupError);
+        }
+      }
+
       return NextResponse.json(
-        { error: 'Internal server error: Python script not found' },
+        { 
+          error: 'File upload to S3 failed', 
+          details: s3Error.message || 'Unknown S3 error'
+        },
         { status: 500 }
       );
     }
-    
-    return new Promise<Response>((resolve) => {
-      // Use 'python3' if on macOS or Linux, fallback to 'python' otherwise
-      const pythonCommand = process.platform === 'win32' ? 'python' : 'python3';
-      console.log(`[${new Date().toISOString()}] Using Python command: ${pythonCommand}`);
-      
-      const pythonProcess = spawn(pythonCommand, [pythonScriptPath, filePath, BUCKET_NAME]);
-      
-      let outputData = '';
-      let errorData = '';
-      
-      pythonProcess.stdout.on('data', (data) => {
-        const chunk = data.toString();
-        console.log(`[${new Date().toISOString()}] Python stdout: ${chunk}`);
-        outputData += chunk;
-      });
-      
-      pythonProcess.stderr.on('data', (data) => {
-        const chunk = data.toString();
-        console.error(`[${new Date().toISOString()}] Python stderr: ${chunk}`);
-        errorData += chunk;
-      });
-      
-      pythonProcess.on('close', (code) => {
-        console.log(`[${new Date().toISOString()}] Python process exited with code ${code}`);
-        
-        if (code !== 0) {
-          console.error(`[${new Date().toISOString()}] Python script execution failed:`, errorData);
-          resolve(NextResponse.json(
-            { error: 'File upload to S3 failed', details: errorData },
-            { status: 500 }
-          ));
-          return;
-        }
-        
-        try {
-          console.log(`[${new Date().toISOString()}] Full Python output:`, outputData);
-          // Try to extract JSON result from the output
-          const jsonStartIndex = outputData.lastIndexOf('{');
-          if (jsonStartIndex === -1) {
-            throw new Error('No JSON found in Python output');
-          }
-          
-          const jsonString = outputData.substring(jsonStartIndex);
-          console.log(`[${new Date().toISOString()}] Extracted JSON string:`, jsonString);
-          
-          const jsonResult = JSON.parse(jsonString);
-          console.log(`[${new Date().toISOString()}] Parsed JSON result:`, jsonResult);
-          
-          if (jsonResult.status === 'success') {
-            console.log(`[${new Date().toISOString()}] Upload successful, returning response`);
-            resolve(NextResponse.json({
-              success: true,
-              message: 'File uploaded successfully',
-              s3Key: fileName,
-              s3Url: jsonResult.url
-            }));
-          } else {
-            console.error(`[${new Date().toISOString()}] Upload failed with error:`, jsonResult.message);
-            resolve(NextResponse.json(
-              { error: jsonResult.message || 'Unknown error' },
-              { status: 500 }
-            ));
-          }
-        } catch (error) {
-          console.error(`[${new Date().toISOString()}] Error parsing Python script output:`, error);
-          console.error(`[${new Date().toISOString()}] Raw output:`, outputData);
-          resolve(NextResponse.json(
-            { error: 'Error processing upload result', details: outputData },
-            { status: 500 }
-          ));
-        }
-      });
-
-      // Handle unexpected errors with the process
-      pythonProcess.on('error', (error) => {
-        console.error(`[${new Date().toISOString()}] Python process error:`, error);
-        resolve(NextResponse.json(
-          { error: `Error executing Python process: ${error.message}` },
-          { status: 500 }
-        ));
-      });
-    });
-  } catch (error) {
+  } catch (error: any) {
     console.error(`[${new Date().toISOString()}] Error handling file upload:`, error);
+    
+    // Clean up temp file on error
+    if (tempFilePath && existsSync(tempFilePath)) {
+      try {
+        await unlink(tempFilePath);
+      } catch (cleanupError) {
+        console.error(`[${new Date().toISOString()}] Error cleaning up temp file:`, cleanupError);
+      }
+    }
+
     return NextResponse.json(
-      { error: 'Error handling file upload' },
+      { error: 'Error handling file upload', details: error.message },
       { status: 500 }
     );
   }
-} 
+}

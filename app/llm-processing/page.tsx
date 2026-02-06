@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { documentStore } from '@/utils/documentStore';
 import { personalLoanDocumentTypes } from '@/models/DocumentTypes';
+import AppLayout from '@/app/components/AppLayout';
 
 export default function LlmProcessingPage() {
   const [processingStatus, setProcessingStatus] = useState({
@@ -133,40 +134,41 @@ export default function LlmProcessingPage() {
   const progressPercentage = Math.round((processingStatus.completed / processingStatus.total) * 100) || 0;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-      <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-md">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Classifying Documents with AI</h1>
-          <p className="text-gray-600">
-            Our AI is analyzing your documents and determining their types.
-          </p>
-        </div>
-
-        {error && (
-          <div className="mb-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg">
-            {error}
-          </div>
-        )}
-
-        <div className="mb-6">
-          <div className="flex justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">Processing</span>
-            <span className="text-sm font-medium text-gray-700">{progressPercentage}%</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2.5">
-            <div 
-              className="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" 
-              style={{ width: `${progressPercentage}%` }}
-            ></div>
-          </div>
-
-          {processingStatus.currentFile && (
-            <p className="mt-2 text-sm text-gray-500">
-              Currently classifying: {processingStatus.currentFile}
+    <AppLayout>
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+        <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-md">
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Classifying Documents with AI</h1>
+            <p className="text-gray-600">
+              Our AI is analyzing your documents and determining their types.
             </p>
+          </div>
+
+          {error && (
+            <div className="mb-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg">
+              {error}
+            </div>
           )}
 
-          <div className="mt-4 text-sm text-gray-500 flex items-center">
+          <div className="mb-6">
+            <div className="flex justify-between mb-2">
+              <span className="text-sm font-medium text-gray-700">Processing</span>
+              <span className="text-sm font-medium text-gray-700">{progressPercentage}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div 
+                className="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" 
+                style={{ width: `${progressPercentage}%` }}
+              ></div>
+            </div>
+
+            {processingStatus.currentFile && (
+              <p className="mt-2 text-sm text-gray-500">
+                Currently classifying: {processingStatus.currentFile}
+              </p>
+            )}
+
+            <div className="mt-4 text-sm text-gray-500 flex items-center">
             <span className="font-medium mr-2">{processingStatus.completed}</span> 
             of 
             <span className="font-medium mx-2">{processingStatus.total}</span> 
@@ -187,5 +189,6 @@ export default function LlmProcessingPage() {
         </div>
       </div>
     </div>
+    </AppLayout>
   );
 } 

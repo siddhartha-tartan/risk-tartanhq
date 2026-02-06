@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/legacy/image';
 import { documentStore } from '@/utils/documentStore';
 import { personalLoanDocumentTypes, getDocumentTypeName } from '@/models/DocumentTypes';
+import { MockingStateManager } from '@/utils/mockingState';
+import AppLayout from '@/app/components/AppLayout';
 
 // File type to icon mapping
 const fileTypeIcons = {
@@ -26,7 +28,13 @@ export default function DocumentMappingPage() {
     currentFile: '',
   });
   const [classificationDone, setClassificationDone] = useState(false);
+  const [isMockMode, setIsMockMode] = useState(false);
   const router = useRouter();
+
+  // Check initial mock mode state
+  useEffect(() => {
+    setIsMockMode(MockingStateManager.isMockModeEnabled());
+  }, []);
 
   useEffect(() => {
     // Get documents from the document store
@@ -171,6 +179,14 @@ export default function DocumentMappingPage() {
     documentStore.updateDocument(currentDocument.id, { ocrText: event.target.value });
   };
 
+  const handleActivateDemoMode = () => {
+    if (!isMockMode) {
+      MockingStateManager.enableMockMode();
+      setIsMockMode(true);
+      console.log('🎭 Demo mode activated via heading click');
+    }
+  };
+
   const handleContinue = () => {
     // Save all documents with their updated OCR text
     documents.forEach(doc => {
@@ -236,74 +252,47 @@ export default function DocumentMappingPage() {
 
   if (error && documents.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
-          <div className="text-center text-red-600 mb-4">{error}</div>
-          <button
-            onClick={() => router.push('/upload')}
-            className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-          >
-            Return to Upload
-          </button>
+      <AppLayout>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
+            <div className="text-center text-red-600 mb-4">{error}</div>
+            <button
+              onClick={() => router.push('/upload')}
+              className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+            >
+              Return to Upload
+            </button>
+          </div>
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Client Document Review</h1>
+    <AppLayout>
+      <div className="min-h-screen bg-gray-50 p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-6">
+            <h1 
+              className={`text-2xl font-bold cursor-pointer select-none transition-colors duration-200 ${
+                isMockMode 
+                  ? 'text-gray-800 border-b-2 border-yellow-400 pb-1' 
+                  : 'text-gray-900 hover:text-gray-700'
+              }`}
+              onClick={handleActivateDemoMode}
+              title={isMockMode ? "Demo Mode Active" : "Click to activate demo mode"}
+            >
+              Client Document Review
+            </h1>
             <p className="text-gray-600">Review extracted data from client financial documents</p>
           </div>
-          
-          <button
-            onClick={handleContinue}
-            className="px-5 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 flex items-center"
-          >
-            Proceed to Assessment <span className="ml-2">→</span>
-          </button>
-        </div>
-        {error && (
-          <div className="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg">
-            {error}
-          </div>
-        )}
+          {error && (
+            <div className="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg">
+              {error}
+            </div>
+          )}
 
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          {/* Header with navigation */}
-          <div className="border-b border-gray-200 p-4 bg-gray-50 flex items-center justify-between">
-            <h1 className="text-xl font-semibold text-gray-800">Review OCR Text</h1>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => currentDocIndex > 0 && handleDocumentChange(currentDocIndex - 1)}
-                disabled={currentDocIndex === 0}
-                className={`p-2 rounded-md ${
-                  currentDocIndex === 0 ? 'text-gray-300' : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-              </button>
-              <span className="text-gray-700">
-                Document {currentDocIndex + 1} of {documents.length}
-              </span>
-              <button
-                onClick={() => currentDocIndex < documents.length - 1 && handleDocumentChange(currentDocIndex + 1)}
-                disabled={currentDocIndex === documents.length - 1}
-                className={`p-2 rounded-md ${
-                  currentDocIndex === documents.length - 1 ? 'text-gray-300' : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                </svg>
-              </button>
-            </div>
-          </div>
           
           {/* Document Navigator (Sidebar) */}
           <div className="flex h-[calc(100vh-220px)]">
@@ -466,5 +455,6 @@ export default function DocumentMappingPage() {
         </div>
       </div>
     </div>
+    </AppLayout>
   );
 } 

@@ -75,6 +75,36 @@ For demo purposes, use the following credentials:
 - Username: `admin`
 - Password: `password`
 
+## Demo Mode - Experience All 4 LLMs
+
+To see the complete personal loan analysis system in action without requiring external API calls:
+
+1. **Download the Demo File**: Visit the upload page and download `goutam.zip`
+2. **Upload the File**: Upload `goutam.zip` to the system
+3. **Experience the Full Workflow**: The system will demonstrate all 4 LLMs working together:
+   - **GPT-4o-mini**: Advanced document data extraction
+   - **o3-mini**: Comprehensive business document analysis  
+   - **o3-mini**: AI-powered risk insights generation
+   - **o3-mini**: Credit Assessment Memo (CAM) creation
+
+### Demo Features
+
+- ✅ **Real OCR Data**: Uses actual OCR text from genuine documents
+- ✅ **High-Quality Mock LLM Responses**: Realistic, comprehensive analysis results
+- ✅ **Complete Workflow**: Experience all stages from upload to final recommendations
+- ✅ **No API Costs**: Skip expensive LLM API calls during demonstrations
+- ✅ **Instant Processing**: No waiting for external API responses
+- ✅ **Realistic Results**: Shows exactly how the system works with real data
+
+### What the Demo Shows
+
+1. **Document Analysis**: Complete breakdown of PAN card, salary slips, bank statements, CIBIL report, rent agreement, and increment letter
+2. **Risk Assessment**: Detailed insights including credit profile analysis, income verification, and potential red flags
+3. **Loan Decision**: Full CAM summary with approval recommendation, risk rating, and specific loan conditions
+4. **Compliance Verification**: Comprehensive checklist verification against lending standards
+
+Perfect for demonstrations, training, and understanding the system's capabilities!
+
 ## Technologies Used
 
 - **Frontend**: Next.js, React, Tailwind CSS

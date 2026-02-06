@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { EnhancedDummyData } from '@/utils/mockingState';
 import OpenAI from 'openai';
 
 // Initialize OpenAI client
@@ -12,6 +13,72 @@ export async function POST(request: Request) {
   try {
     const data = await request.json();
     const { documents } = data;
+
+    // Check for mock mode header
+    const mockMode = request.headers.get('X-Mock-Mode');
+    if (mockMode === 'enabled') {
+      console.log('🎭 MOCK MODE: Returning enhanced business analysis dummy data');
+      
+      // Add 15-second realistic processing delay for demo
+      await new Promise(resolve => setTimeout(resolve, 15000));
+      
+      return NextResponse.json({
+        success: true,
+        analysisResult: {
+          applicantDetails: {
+            name: "Goutam Singh",
+            age: 31,
+            employment: "Senior Sales Executive at Microtek International",
+            income: "₹39,550/month",
+            cibilScore: 781,
+            riskProfile: "Moderate Risk - High Income, Credit Inquiry Concerns"
+          },
+          documentAnalysis: EnhancedDummyData.financialInsights.insights.reduce((acc: any, insight: any) => {
+            acc[insight.title] = {
+              finding: insight.description,
+              riskLevel: insight.riskLevel || 'Medium',
+              confidence: insight.confidence || 90,
+              relatedDocs: insight.relatedDocuments || []
+            };
+            return acc;
+          }, {}),
+          overallAnalysis: {
+            recommendation: "DOCUMENTATION PENDING",
+            loanAmount: "₹2,00,000 (Under Review - Pending Complete Documentation)",
+            reasoning: "Preliminary assessment shows potential eligibility, but insufficient documentation for final decision. Critical documents and verifications required.",
+            conditions: ["Complete 3-month salary slips required", "Address verification mandatory", "Employment letter needed", "Additional bank statements required", "Physical verification pending"]
+          },
+          processingStats: {
+            documentsAnalyzed: documents?.length || 9,
+            aiConfidence: 45, // Lower confidence due to insufficient documentation
+            processingTime: "15 seconds (comprehensive analysis)"
+          }
+        },
+        rawLlmOutput: `🏦 **BUSINESS DOCUMENT ANALYSIS COMPLETE** - Enhanced Demo Mode
+
+✨ **MOCK MODE ACTIVE** - Showcasing Advanced AI Business Analysis
+
+📋 **Analysis Summary:**
+- Documents Processed: ${documents?.length || 9}  
+- Risk Assessment: Preliminary assessment (requires additional documentation)
+- AI Confidence: 45% (Low - Insufficient Documentation)
+- Processing Time: 15s (Comprehensive analysis)
+
+🎯 **Key AI Insights Generated:**
+${EnhancedDummyData.financialInsights.insights.map((insight: any, index: number) => 
+  `${index + 1}. ${insight.title} (${insight.confidence}% confidence)`
+).join('\n')}
+
+🚀 **Advanced Features Demonstrated:**
+- Cross-document verification
+- Risk pattern detection  
+- Income stability analysis
+- Credit behavior assessment
+- Automated compliance checking
+
+This enhanced demo showcases our enterprise-grade AI loan processing platform.`
+      });
+    }
     
     if (!documents || documents.length === 0) {
       console.error('[ANALYZE BUSINESS DOCUMENTS API] No documents provided in request');
@@ -22,6 +89,8 @@ export async function POST(request: Request) {
     }
     
     console.log(`[ANALYZE BUSINESS DOCUMENTS API] Processing ${documents.length} documents`);
+    
+
     
     // Prepare document OCR text for the LLM
     const documentTexts = documents.map((doc: any) => ({
@@ -140,11 +209,11 @@ Based on the above documents, provide a structured analysis in the following JSO
 
   "part2": {
     "document_analysis": {
-      // For each document, provide:
-      // 1. A summary of the SPECIFIC key data points extracted from it
-      // 2. The significance of this document to the loan application
-      // Example: "PAN Card": "PAN: ABCDE1234F, Name: Arun Kumar, Father's Name: Rajesh Kumar. The PAN details match with Aadhaar and application form."
-      // Include ALL documents provided, with specific data points extracted
+      // For each document, provide a single markdown-formatted string with 
+      // both key data points and their significance to the loan application.
+      // Example: 
+      // "PAN Card": "**Key Data**:\n- PAN: ABCDE1234F\n- Name: Arun Kumar\n- Father's Name: Rajesh Kumar\n\n**Significance**:\n- The PAN details match with Aadhaar and application form\n- Confirms applicant identity"
+      // Include ALL documents provided, with specific data points extracted formatted as markdown lists
     }
   },
 
@@ -164,13 +233,14 @@ Based on the above documents, provide a structured analysis in the following JSO
 REMEMBER: This analysis is to help a CPA evaluate a loan application. Focus on extracting and highlighting meaningful financial and business information that would impact lending decisions. Don't simply verify documents - analyze the data within them.
 
 IMPORTANT GUIDELINES:
-1. For part2 document_analysis: EXTRACT and include SPECIFIC data points from each document (exact numbers, dates, amounts, identifiers, etc.)
-2. For part3 overall_analysis: Focus on CROSS-DOCUMENT analysis, showing relationships between information in different documents
-3. Use null for missing values, not empty strings
-4. Include an empty co_applicant_details object if none found
-5. Ensure output is valid JSON with properly escaped special characters
-6. When mentioning financial figures, always include exact amounts with currency symbols where available
-7. Highlight any inconsistencies or unusual patterns that deserve the CPA's attention
+1. For part2 document_analysis: Each document's analysis should be a MARKDOWN-FORMATTED STRING with clearly separated sections for data points and significance
+2. Use markdown formatting (bold headers, bullet points) to make the document analysis readable
+3. For part3 overall_analysis: Focus on CROSS-DOCUMENT analysis, showing relationships between information in different documents
+4. Use null for missing values, not empty strings
+5. Include an empty co_applicant_details object if none found
+6. Ensure output is valid JSON with properly escaped special characters
+7. When mentioning financial figures, always include exact amounts with currency symbols where available
+8. Highlight any inconsistencies or unusual patterns that deserve the CPA's attention
 
 Return ONLY the JSON object with no additional text, explanations, or markdown formatting.
   `;

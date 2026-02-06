@@ -1,0 +1,154 @@
+{
+  "checklist": [
+    {
+      "Categories": "Minimum Credit Parameters",
+      "Subcategory (if applicable)": "no subcat",
+      "Document": "Application form",
+      "Checkpoints (what to check in docs)": "Physical form : Dully filled, Demographic, Cross Signed on Photograph & Signature Reference Details dully filled \nDigital Form : There will be seprate photos and no cross sign",
+      "Matching Documents": "Aditya Birla Finance Personal Loan Application Form (captured at 4/6/22, 7:58 PM)",
+      "Data Entry Matching (Answer Yes or No)": "Yes",
+      "Applicant": "Mandatory",
+      "AI Comments (reasoning behind decision)": "The scanned application form shows all required fields (demographic details, photograph placeholder, signature fields) properly filled in block letters."
+    },
+    {
+      "Categories": "Minimum Credit Parameters",
+      "Subcategory (if applicable)": "no subcat",
+      "Document": "Consent Mail",
+      "Checkpoints (what to check in docs)": "Consent mail from registered e mail ID of the applicant\n(Details of consent should match with data and documents uploaded)",
+      "Matching Documents": "Preetam Ghosal login confirmation email",
+      "Data Entry Matching (Answer Yes or No)": "Yes",
+      "Applicant": "Mandatory",
+      "AI Comments (reasoning behind decision)": "An email with the subject 'LOGIN CONFIRMATION' was found in the OCR data, where the registered email ID (gautamsinghsisodia0014@gmail.com) is used and the applicant confirms the details."
+    },
+    {
+      "Categories": "Minimum Credit Parameters",
+      "Subcategory (if applicable)": "no subcat",
+      "Document": "Bank Statement",
+      "Checkpoints (what to check in docs)": "Customer Name , Bank Name, statement period, salary credit mismatches , Continuity of bank statement and subject to scheme/Programs",
+      "Matching Documents": "HDFC Bank Statement (multiple pages)",
+      "Data Entry Matching (Answer Yes or No)": "Yes",
+      "Applicant": "Mandatory",
+      "AI Comments (reasoning behind decision)": "The bank statement pages display the account holder name, bank branch details, and a continuous set of transactions from which salary credits and other payments can be verified."
+    },
+    {
+      "Categories": "Minimum Credit Parameters",
+      "Subcategory (if applicable)": "no subcat",
+      "Document": "POI (Identity proof) - Aadhar card/Voter ID/Driving licence/Passport/Digi locker printouts/NREGA Printout signed by state government officials  - NOT APPLICABLE FOR PRE-APPROVED CASES (if No address change)",
+      "Checkpoints (what to check in docs)": "Customer Name/DOB/Photo",
+      "Matching Documents": "Aadhaar card document (Unique Identification Authority of India) and PAN details mentioned in the application form",
+      "Data Entry Matching (Answer Yes or No)": "Yes",
+      "Applicant": "Mandatory",
+      "AI Comments (reasoning behind decision)": "The Aadhaar card OCR displays the applicant's name, gender, and a unique ID number. In addition, the application form includes the PAN number (DNFPS9282F) which further establishes the identity."
+    },
+    {
+      "Categories": "Minimum Credit Parameters",
+      "Subcategory (if applicable)": "no subcat",
+      "Document": "POA (Address proof)-Aadhar card/Voter ID/Driving licence/Passport/Digi locker printouts/. Rental agreement with OHP of landlord ,(OVD declaration with OVD document), NREGA Job card . Exceptional scenarios - NOT APPLICABLE FOR PRE-APPROVED CASES (if No address change)",
+      "Checkpoints (what to check in docs)": "Customer Name/DOB/address-pincode",
+      "Matching Documents": "Aadhaar card (Unique Identification Authority document with address) and Tenant's Profile / Rental Agreement",
+      "Data Entry Matching (Answer Yes or No)": "Yes",
+      "Applicant": "Mandatory",
+      "AI Comments (reasoning behind decision)": "Both the Aadhaar and the rental agreement documents provide address details including pincode. The Aadhaar card in particular shows the applicant's registered address which matches the details provided in the application form."
+    },
+    {
+      "Categories": "Minimum Credit Parameters",
+      "Subcategory (if applicable)": "no subcat",
+      "Document": "Financial Proof -PAN/Form 60",
+      "Checkpoints (what to check in docs)": "Name /Signature /PAN Number",
+      "Matching Documents": "Aditya Birla Finance Application Form contains PAN number DNFPS9282F",
+      "Data Entry Matching (Answer Yes or No)": "Yes",
+      "Applicant": "Mandatory",
+      "AI Comments (reasoning behind decision)": "The PAN is clearly mentioned as DNFPS9282F in the application; no discrepancies were found."
+    },
+    {
+      "Categories": "Minimum Credit Parameters",
+      "Subcategory (if applicable)": "no subcat",
+      "Document": "DOB Proof -Driving licence/Passport/Birth or corporation certificate (name is mandatory) , School leaving certificate, LIC policy (Minimum 12 month in force), aadhar card, Voter ID with affidavit stated DOB",
+      "Checkpoints (what to check in docs)": "DOB details",
+      "Matching Documents": "Aadhaar card document and Application Form (which both indicate DOB 27/12/1992)",
+      "Data Entry Matching (Answer Yes or No)": "Yes",
+      "Applicant": "Mandatory",
+      "AI Comments (reasoning behind decision)": "The applicant’s date of birth (27/12/1992) is explicitly shown in the Aadhaar card as well as in the application form."
+    },
+    {
+      "Categories": "Minimum Credit Parameters",
+      "Subcategory (if applicable)": "no subcat",
+      "Document": "System Entry LOS - A) Sourcing Page - Scheme Group,Scheme Code,Loan Type, \nB) Sub-Product Financials (Not applicable for pre-approved) update of Banking,RTR, Eligbility ,\nC) Dedupe Process (Probable match will get confirmation from credit, \nD) RCU Trigger for LOD documents",
+      "Checkpoints (what to check in docs)": "",
+      "Matching Documents": "",
+      "Data Entry Matching (Answer Yes or No)": "No",
+      "Applicant": "Mandatory",
+      "AI Comments (reasoning behind decision)": "No system-generated LOS or internal entry document was found in the OCR data."
+    },
+    {
+      "Categories": "Program Level Checklist",
+      "Subcategory (if applicable)": "Salaried multiplier",
+      "Document": "Income Proof -Payslip & Bank Statement required subject to scheme/program & Payslip",
+      "Checkpoints (what to check in docs)": "Customer Name/ Pan No/ Bank A/C No/ Salary Month/ Minimum Income to be check",
+      "Matching Documents": "MICROTEK Salary Slip for Mar 2022",
+      "Data Entry Matching (Answer Yes or No)": "Yes",
+      "Applicant": "Mandatory",
+      "AI Comments (reasoning behind decision)": "The salary slip displays gross earnings of Rs. 39,550 and includes required pay period information matching the applicant details."
+    },
+    {
+      "Categories": "Program Level Checklist",
+      "Subcategory (if applicable)": "Salaried multiplier",
+      "Document": "3 months Bank Statement",
+      "Checkpoints (what to check in docs)": "Customer Name/ Pan No/ Bank A/C No/ Salary Month/ Minimum Income to be check",
+      "Matching Documents": "HDFC Bank Statement (multiple pages spanning several dates)",
+      "Data Entry Matching (Answer Yes or No)": "Yes",
+      "Applicant": "Mandatory",
+      "AI Comments (reasoning behind decision)": "The bank statements cover a continuous period with the applicant's name and account details clearly visible."
+    },
+    {
+      "Categories": "Program Level Checklist",
+      "Subcategory (if applicable)": "Salaried multiplier",
+      "Document": "Last 3 months Salary slip",
+      "Checkpoints (what to check in docs)": "Customer Name/ Pan No/ Bank A/C No/ Salary Month/ Minimum Income to be check",
+      "Matching Documents": "MICROTEK Salary Slip for Mar 2022",
+      "Data Entry Matching (Answer Yes or No)": "No",
+      "Applicant": "Mandatory",
+      "AI Comments (reasoning behind decision)": "Only a single month’s salary slip (Mar 2022) is provided; the requirement is for the last three months."
+    },
+    {
+      "Categories": "Program Level Checklist",
+      "Subcategory (if applicable)": "Salaried multiplier BT",
+      "Document": "PL repayment schedule and 6 months repayment track to check EMIs",
+      "Checkpoints (what to check in docs)": "",
+      "Matching Documents": "Partial EMI transaction entries observed in the HDFC Bank Statement",
+      "Data Entry Matching (Answer Yes or No)": "No",
+      "Applicant": "Mandatory",
+      "AI Comments (reasoning behind decision)": "While there is evidence of an EMI transaction (e.g., EMI 127057979) in the bank statement, a complete repayment schedule and a 6‐month repayment track are not provided."
+    },
+    {
+      "Categories": "Additional Checklist",
+      "Subcategory (if applicable)": "no subcat",
+      "Document": "Relationship Proof -Marriage Certificate/PAN card/Birth Certificate/Ration card/Passport/Voter ID/Aadhar card",
+      "Checkpoints (what to check in docs)": "Blood Relative details match",
+      "Matching Documents": "None",
+      "Data Entry Matching (Answer Yes or No)": "No",
+      "Applicant": "Mandatory",
+      "AI Comments (reasoning behind decision)": "Although the application form states the father's/spouse name, no dedicated relationship proof document (such as a marriage or birth certificate) is present."
+    },
+    {
+      "Categories": "Additional Checklist",
+      "Subcategory (if applicable)": "no subcat",
+      "Document": "Deemed OVD (In case current residence address not available in OVD )-Rental Agreement with landlord OHP/Bank Statement/Piped Gas Bill/Aaadhar Acknowledgment/HR Allotment Letter/Utility Bills (EB, telephone/postpaid, Water tax receipt, property tax - Latest 60 days ) - Along with any one of these documents additionally OVD declaration required (at disbursement stage). Within 90 days from disbursement  THE customer should submit the address changed OVD docs to ABFL",
+      "Checkpoints (what to check in docs)": "Name/address/signature",
+      "Matching Documents": "Tenant's Profile / Rental Agreement document",
+      "Data Entry Matching (Answer Yes or No)": "Yes",
+      "Applicant": "Mandatory",
+      "AI Comments (reasoning behind decision)": "The rental agreement provides vital address details including the landmark, pincode and includes a signature from the landlord verifying the address."
+    },
+    {
+      "Categories": "Additional Checklist",
+      "Subcategory (if applicable)": "no subcat",
+      "Document": "Dual Name Declaration/ Dual DOB Declaration",
+      "Checkpoints (what to check in docs)": "Name, check the correct/incorrect details , signature of borrowers",
+      "Matching Documents": "None",
+      "Data Entry Matching (Answer Yes or No)": "No",
+      "Applicant": "Not Mandatory",
+      "AI Comments (reasoning behind decision)": "No dual name or dual DOB declaration document is provided in the OCR data."
+    }
+  ]
+}

@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { readFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import path from 'path';
+import os from 'os';
+import { getFromS3, getContentType } from '@/utils/s3Client';
 
 export async function GET(request: NextRequest) {
   try {
     // Get the file path from the query parameters
     const url = new URL(request.url);
     const filePath = url.searchParams.get('path');
+    const source = url.searchParams.get('source') || 'local'; // 'local' or 's3'
 
     if (!filePath) {
       return NextResponse.json(
@@ -19,12 +22,58 @@ export async function GET(request: NextRequest) {
     // Prevent path traversal attacks
     const normalizedPath = path.normalize(filePath).replace(/^(\.\.[\/\\])+/, '');
     
-    // Get the full path to the file
-    const fullPath = path.join(process.cwd(), 'uploads', normalizedPath);
+    // If source is S3, fetch from S3
+    if (source === 's3') {
+      try {
+        console.log(`[GET-FILE] Fetching from S3: ${normalizedPath}`);
+        const fileBuffer = await getFromS3(normalizedPath);
+        const contentType = getContentType(normalizedPath);
+        
+        // Try to parse as JSON if it looks like a JSON file
+        if (contentType === 'application/json' || normalizedPath.endsWith('.json')) {
+          try {
+            const jsonData = JSON.parse(fileBuffer.toString('utf-8'));
+            return NextResponse.json(jsonData);
+          } catch {
+            // Not valid JSON, return as binary
+          }
+        }
+        
+        return new NextResponse(fileBuffer, {
+          headers: {
+            'Content-Type': contentType,
+          },
+        });
+      } catch (s3Error: any) {
+        console.error(`[GET-FILE] S3 error: ${s3Error.message}`);
+        return NextResponse.json(
+          { error: 'File not found in S3' },
+          { status: 404 }
+        );
+      }
+    }
+    
+    // Check temp directory first (for Vercel serverless)
+    const tempDir = os.tmpdir();
+    const tempPath = path.join(tempDir, 'uploads', normalizedPath);
+    
+    // Also check the old uploads path for backwards compatibility in local dev
+    const localPath = path.join(process.cwd(), 'uploads', normalizedPath);
+    
+    // Determine which path to use
+    let fullPath: string | null = null;
+    
+    if (existsSync(tempPath)) {
+      fullPath = tempPath;
+      console.log(`[GET-FILE] Found file in temp: ${tempPath}`);
+    } else if (existsSync(localPath)) {
+      fullPath = localPath;
+      console.log(`[GET-FILE] Found file in local uploads: ${localPath}`);
+    }
 
     // Check if the file exists
-    if (!existsSync(fullPath)) {
-      console.error(`File not found: ${fullPath}`);
+    if (!fullPath) {
+      console.error(`[GET-FILE] File not found: ${normalizedPath}`);
       return NextResponse.json(
         { error: 'File not found' },
         { status: 404 }
@@ -43,7 +92,8 @@ export async function GET(request: NextRequest) {
     } catch (parseError) {
       // If parsing fails, return the raw file contents
       console.error('Error parsing file as JSON:', parseError);
-      return new NextResponse(await readFile(fullPath), {
+      const fileBuffer = await readFile(fullPath);
+      return new NextResponse(fileBuffer, {
         headers: {
           'Content-Type': 'application/octet-stream',
         },
@@ -56,4 +106,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

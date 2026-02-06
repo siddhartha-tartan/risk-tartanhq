@@ -1,0 +1,479 @@
+[
+  {
+    "s_no": 1,
+    "field_name": "Applicant Name",
+    "Source_to_be_looked_at_in_ocr": "PAN Card",
+    "Field_data_found_in_OCR": "GOUTAM SINGH",
+    "Source_where_actually_data_is_found": "Document 1 (PAN Card content)",
+    "ai_comments": "Extracted name from PAN card OCR.",
+    "Source_found_in_OCR": "Document 1 (PAN Card content)",
+    "AI_Comments": "Extracted name from PAN card OCR."
+  },
+  {
+    "s_no": 2,
+    "field_name": "Applicant Name",
+    "Source_to_be_looked_at_in_ocr": "Aadhaar Card",
+    "Field_data_found_in_OCR": "Goutam Singh",
+    "Source_where_actually_data_is_found": "Document 8 (Aadhaar-like content)",
+    "ai_comments": "Extracted name from Aadhaar OCR.",
+    "Source_found_in_OCR": "Document 8 (Aadhaar-like content)",
+    "AI_Comments": "Extracted name from Aadhaar OCR."
+  },
+  {
+    "s_no": 3,
+    "field_name": "Applicant Name",
+    "Source_to_be_looked_at_in_ocr": "Application Form",
+    "Field_data_found_in_OCR": "GOUTAM SINGH",
+    "Source_where_actually_data_is_found": "Document 9 (Application Form)",
+    "ai_comments": "Extracted name from application form.",
+    "Source_found_in_OCR": "Document 9 (Application Form)",
+    "AI_Comments": "Extracted name from application form."
+  },
+  {
+    "s_no": 4,
+    "field_name": "Date of Birth",
+    "Source_to_be_looked_at_in_ocr": "PAN Card",
+    "Field_data_found_in_OCR": "27/12/1992",
+    "Source_where_actually_data_is_found": "Document 1 (PAN Card content)",
+    "ai_comments": "DOB found in PAN card OCR.",
+    "Source_found_in_OCR": "Document 1 (PAN Card content)",
+    "AI_Comments": "DOB found in PAN card OCR."
+  },
+  {
+    "s_no": 5,
+    "field_name": "Date of Birth",
+    "Source_to_be_looked_at_in_ocr": "Aadhaar Card",
+    "Field_data_found_in_OCR": "27/12/1992",
+    "Source_where_actually_data_is_found": "Document 8 (Aadhaar-like content)",
+    "ai_comments": "DOB extracted from Aadhaar document OCR.",
+    "Source_found_in_OCR": "Document 8 (Aadhaar-like content)",
+    "AI_Comments": "DOB extracted from Aadhaar document OCR."
+  },
+  {
+    "s_no": 6,
+    "field_name": "Gender",
+    "Source_to_be_looked_at_in_ocr": "Aadhaar Card",
+    "Field_data_found_in_OCR": "Male",
+    "Source_where_actually_data_is_found": "Document 8 (Aadhaar-like content)",
+    "ai_comments": "Gender indicated as Male in Aadhaar OCR.",
+    "Source_found_in_OCR": "Document 8 (Aadhaar-like content)",
+    "AI_Comments": "Gender indicated as Male in Aadhaar OCR."
+  },
+  {
+    "s_no": 7,
+    "field_name": "Gender",
+    "Source_to_be_looked_at_in_ocr": "Application Form",
+    "Field_data_found_in_OCR": "Male",
+    "Source_where_actually_data_is_found": "Document 9 (Application Form)",
+    "ai_comments": "Selected tick shows Male in application form.",
+    "Source_found_in_OCR": "Document 9 (Application Form)",
+    "AI_Comments": "Selected tick shows Male in application form."
+  },
+  {
+    "s_no": 8,
+    "field_name": "Mobile Number",
+    "Source_to_be_looked_at_in_ocr": "Application Form",
+    "Field_data_found_in_OCR": "8388920141",
+    "Source_where_actually_data_is_found": "Document 9 (Application Form, Contact Details)",
+    "ai_comments": "Mobile number extracted from application form.",
+    "Source_found_in_OCR": "Document 9 (Application Form, Contact Details)",
+    "AI_Comments": "Mobile number extracted from application form."
+  },
+  {
+    "s_no": 9,
+    "field_name": "Mobile Number",
+    "Source_to_be_looked_at_in_ocr": "Bank Statement",
+    "Field_data_found_in_OCR": "98310 73333",
+    "Source_where_actually_data_is_found": "Document 5 (HDFC Bank Statement)",
+    "ai_comments": "Phone number from bank statement header used.",
+    "Source_found_in_OCR": "Document 5 (HDFC Bank Statement)",
+    "AI_Comments": "Phone number from bank statement header used."
+  },
+  {
+    "s_no": 10,
+    "field_name": "Mobile Number",
+    "Source_to_be_looked_at_in_ocr": "eKYC",
+    "Field_data_found_in_OCR": "8388920141",
+    "Source_where_actually_data_is_found": "Document 4 (CIBIL/eKYC section)",
+    "ai_comments": "Primary mobile selected from eKYC details.",
+    "Source_found_in_OCR": "Document 4 (CIBIL/eKYC section)",
+    "AI_Comments": "Primary mobile selected from eKYC details."
+  },
+  {
+    "s_no": 11,
+    "field_name": "Email ID",
+    "Source_to_be_looked_at_in_ocr": "Application Form",
+    "Field_data_found_in_OCR": "Data not found in Document OCR",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": "Email not clearly recognized in application form OCR.",
+    "AI_Comments": "Email not clearly recognized in application form OCR."
+  },
+  {
+    "s_no": 12,
+    "field_name": "PAN Number",
+    "Source_to_be_looked_at_in_ocr": "PAN Card",
+    "Field_data_found_in_OCR": "DNFPS9282F",
+    "Source_where_actually_data_is_found": "Document 1 (PAN Card content)",
+    "ai_comments": "PAN number extracted from PAN card OCR.",
+    "Source_found_in_OCR": "Document 1 (PAN Card content)",
+    "AI_Comments": "PAN number extracted from PAN card OCR."
+  },
+  {
+    "s_no": 13,
+    "field_name": "PAN Number",
+    "Source_to_be_looked_at_in_ocr": "eKYC",
+    "Field_data_found_in_OCR": "DNFPS9282F",
+    "Source_where_actually_data_is_found": "Document 4 (CIBIL/eKYC section)",
+    "ai_comments": "PAN number verified in eKYC document.",
+    "Source_found_in_OCR": "Document 4 (CIBIL/eKYC section)",
+    "AI_Comments": "PAN number verified in eKYC document."
+  },
+  {
+    "s_no": 14,
+    "field_name": "Aadhaar Number",
+    "Source_to_be_looked_at_in_ocr": "Aadhaar Card",
+    "Field_data_found_in_OCR": "9183567953173860",
+    "Source_where_actually_data_is_found": "Document 16 (UIDAI Aadhaar)",
+    "ai_comments": "Extracted Aadhaar UID from UIDAI document.",
+    "Source_found_in_OCR": "Document 16 (UIDAI Aadhaar)",
+    "AI_Comments": "Extracted Aadhaar UID from UIDAI document."
+  },
+  {
+    "s_no": 15,
+    "field_name": "Aadhaar Number",
+    "Source_to_be_looked_at_in_ocr": "eKYC",
+    "Field_data_found_in_OCR": "809494713003",
+    "Source_where_actually_data_is_found": "Document 4 (CIBIL/eKYC section)",
+    "ai_comments": "Aadhaar number extracted from eKYC details.",
+    "Source_found_in_OCR": "Document 4 (CIBIL/eKYC section)",
+    "AI_Comments": "Aadhaar number extracted from eKYC details."
+  },
+  {
+    "s_no": 16,
+    "field_name": "Current Address",
+    "Source_to_be_looked_at_in_ocr": "Aadhaar Card",
+    "Field_data_found_in_OCR": "Data not found in Document OCR",
+    "Source_where_actually_data_is_found": "Document 8 (Aadhaar-like content)",
+    "ai_comments": "Aadhaar OCR did not include address details.",
+    "Source_found_in_OCR": "Document 8 (Aadhaar-like content)",
+    "AI_Comments": "Aadhaar OCR did not include address details."
+  },
+  {
+    "s_no": 17,
+    "field_name": "Current Address",
+    "Source_to_be_looked_at_in_ocr": "Utility Bill",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 18,
+    "field_name": "Current Address",
+    "Source_to_be_looked_at_in_ocr": "CPV Report",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 19,
+    "field_name": "Permanent Address",
+    "Source_to_be_looked_at_in_ocr": "Aadhaar Card",
+    "Field_data_found_in_OCR": "Data not found in Document OCR",
+    "Source_where_actually_data_is_found": "Document 8 (Aadhaar-like content)",
+    "ai_comments": "Permanent address not provided in Aadhaar OCR.",
+    "Source_found_in_OCR": "Document 8 (Aadhaar-like content)",
+    "AI_Comments": "Permanent address not provided in Aadhaar OCR."
+  },
+  {
+    "s_no": 20,
+    "field_name": "Permanent Address",
+    "Source_to_be_looked_at_in_ocr": "Utility Bill",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 21,
+    "field_name": "Permanent Address",
+    "Source_to_be_looked_at_in_ocr": "CPV Report",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 22,
+    "field_name": "Requested Loan Amount",
+    "Source_to_be_looked_at_in_ocr": "Application Form",
+    "Field_data_found_in_OCR": "200000",
+    "Source_where_actually_data_is_found": "Document 9 (Application Form)",
+    "ai_comments": "Concatenated digits from loan amount field.",
+    "Source_found_in_OCR": "Document 9 (Application Form)",
+    "AI_Comments": "Concatenated digits from loan amount field."
+  },
+  {
+    "s_no": 23,
+    "field_name": "Loan Tenure",
+    "Source_to_be_looked_at_in_ocr": "Application Form",
+    "Field_data_found_in_OCR": "60",
+    "Source_where_actually_data_is_found": "Document 9 (Application Form)",
+    "ai_comments": "Extracted tenure (in months) from application form.",
+    "Source_found_in_OCR": "Document 9 (Application Form)",
+    "AI_Comments": "Extracted tenure (in months) from application form."
+  },
+  {
+    "s_no": 24,
+    "field_name": "Purpose of Loan",
+    "Source_to_be_looked_at_in_ocr": "Application Form",
+    "Field_data_found_in_OCR": "Personal Loan",
+    "Source_where_actually_data_is_found": "Document 9 (Application Form)",
+    "ai_comments": "Loan purpose inferred from selected type.",
+    "Source_found_in_OCR": "Document 9 (Application Form)",
+    "AI_Comments": "Loan purpose inferred from selected type."
+  },
+  {
+    "s_no": 25,
+    "field_name": "Employer Name",
+    "Source_to_be_looked_at_in_ocr": "Salary Slip",
+    "Field_data_found_in_OCR": "MICROTEK INTERNATIONAL PRIVATE LIMITED",
+    "Source_where_actually_data_is_found": "Document 7 (Salary Slip)",
+    "ai_comments": "Employer name extracted from salary slip header.",
+    "Source_found_in_OCR": "Document 7 (Salary Slip)",
+    "AI_Comments": "Employer name extracted from salary slip header."
+  },
+  {
+    "s_no": 26,
+    "field_name": "Employer Name",
+    "Source_to_be_looked_at_in_ocr": "Form16",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 27,
+    "field_name": "Employer Category",
+    "Source_to_be_looked_at_in_ocr": "Internal Employer Database",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 28,
+    "field_name": "Net Monthly Salary",
+    "Source_to_be_looked_at_in_ocr": "Salary Slip",
+    "Field_data_found_in_OCR": "39550",
+    "Source_where_actually_data_is_found": "Document 7 (Salary Slip)",
+    "ai_comments": "Net salary extracted from salary slip.",
+    "Source_found_in_OCR": "Document 7 (Salary Slip)",
+    "AI_Comments": "Net salary extracted from salary slip."
+  },
+  {
+    "s_no": 29,
+    "field_name": "Net Monthly Salary",
+    "Source_to_be_looked_at_in_ocr": "Bank Statement",
+    "Field_data_found_in_OCR": "27491.00",
+    "Source_where_actually_data_is_found": "Document 5 (HDFC Bank Statement)",
+    "ai_comments": "Salary credit amount identified in bank statement.",
+    "Source_found_in_OCR": "Document 5 (HDFC Bank Statement)",
+    "AI_Comments": "Salary credit amount identified in bank statement."
+  },
+  {
+    "s_no": 30,
+    "field_name": "Gross Monthly Salary",
+    "Source_to_be_looked_at_in_ocr": "Salary Slip",
+    "Field_data_found_in_OCR": "39550",
+    "Source_where_actually_data_is_found": "Document 7 (Salary Slip)",
+    "ai_comments": "Gross earnings from salary slip used.",
+    "Source_found_in_OCR": "Document 7 (Salary Slip)",
+    "AI_Comments": "Gross earnings from salary slip used."
+  },
+  {
+    "s_no": 31,
+    "field_name": "Gross Monthly Salary",
+    "Source_to_be_looked_at_in_ocr": "Form16",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 32,
+    "field_name": "Salary Credit Confirmation",
+    "Source_to_be_looked_at_in_ocr": "Bank Statement",
+    "Field_data_found_in_OCR": "MICROTEK SALARY deposit on 05/03/22",
+    "Source_where_actually_data_is_found": "Document 5 (HDFC Bank Statement)",
+    "ai_comments": "Salary credit transaction confirms disbursement.",
+    "Source_found_in_OCR": "Document 5 (HDFC Bank Statement)",
+    "AI_Comments": "Salary credit transaction confirms disbursement."
+  },
+  {
+    "s_no": 33,
+    "field_name": "Average Monthly Balance",
+    "Source_to_be_looked_at_in_ocr": "Bank Statement",
+    "Field_data_found_in_OCR": "Data not found in Document OCR",
+    "Source_where_actually_data_is_found": "Document 5 (HDFC Bank Statement)",
+    "ai_comments": "Average balance not explicitly provided.",
+    "Source_found_in_OCR": "Document 5 (HDFC Bank Statement)",
+    "AI_Comments": "Average balance not explicitly provided."
+  },
+  {
+    "s_no": 34,
+    "field_name": "EMI Deductions",
+    "Source_to_be_looked_at_in_ocr": "Bank Statement",
+    "Field_data_found_in_OCR": "7266.00",
+    "Source_where_actually_data_is_found": "Document 5 (HDFC Bank Statement)",
+    "ai_comments": "EMI amount identified in bank statement transaction.",
+    "Source_found_in_OCR": "Document 5 (HDFC Bank Statement)",
+    "AI_Comments": "EMI amount identified in bank statement transaction."
+  },
+  {
+    "s_no": 35,
+    "field_name": "EMI Deductions",
+    "Source_to_be_looked_at_in_ocr": "Bureau Report",
+    "Field_data_found_in_OCR": "Data not found in Document OCR",
+    "Source_where_actually_data_is_found": "Document 4 (CIBIL Report)",
+    "ai_comments": "No EMI deduction value found in bureau report.",
+    "Source_found_in_OCR": "Document 4 (CIBIL Report)",
+    "AI_Comments": "No EMI deduction value found in bureau report."
+  },
+  {
+    "s_no": 36,
+    "field_name": "Cheque Bounce Count",
+    "Source_to_be_looked_at_in_ocr": "Bank Statement",
+    "Field_data_found_in_OCR": "0",
+    "Source_where_actually_data_is_found": "Document 5 (HDFC Bank Statement)",
+    "ai_comments": "No cheque bounce transaction observed.",
+    "Source_found_in_OCR": "Document 5 (HDFC Bank Statement)",
+    "AI_Comments": "No cheque bounce transaction observed."
+  },
+  {
+    "s_no": 37,
+    "field_name": "FOIR",
+    "Source_to_be_looked_at_in_ocr": "Derived (EMIs / Net Income)",
+    "Field_data_found_in_OCR": "18%",
+    "Source_where_actually_data_is_found": "Calculated from salary and EMI data",
+    "ai_comments": "Approximate FOIR calculated as (7266/39550)*100.",
+    "Source_found_in_OCR": "Calculated from salary and EMI data",
+    "AI_Comments": "Approximate FOIR calculated as (7266/39550)*100."
+  },
+  {
+    "s_no": 38,
+    "field_name": "CIBIL Score",
+    "Source_to_be_looked_at_in_ocr": "Bureau Report",
+    "Field_data_found_in_OCR": "781",
+    "Source_where_actually_data_is_found": "Document 4 (CIBIL Report)",
+    "ai_comments": "CIBIL score extracted from bureau report.",
+    "Source_found_in_OCR": "Document 4 (CIBIL Report)",
+    "AI_Comments": "CIBIL score extracted from bureau report."
+  },
+  {
+    "s_no": 39,
+    "field_name": "Loan Enquiry Volume",
+    "Source_to_be_looked_at_in_ocr": "Bureau Report",
+    "Field_data_found_in_OCR": "111",
+    "Source_where_actually_data_is_found": "Document 4 (CIBIL Report)",
+    "ai_comments": "Total enquiry count provided in report.",
+    "Source_found_in_OCR": "Document 4 (CIBIL Report)",
+    "AI_Comments": "Total enquiry count provided in report."
+  },
+  {
+    "s_no": 40,
+    "field_name": "Current Loan Obligations",
+    "Source_to_be_looked_at_in_ocr": "Bureau Report",
+    "Field_data_found_in_OCR": "Data not found in Document OCR",
+    "Source_where_actually_data_is_found": "Document 4 (CIBIL Report)",
+    "ai_comments": "Loan obligations not summarized.",
+    "Source_found_in_OCR": "Document 4 (CIBIL Report)",
+    "AI_Comments": "Loan obligations not summarized."
+  },
+  {
+    "s_no": 41,
+    "field_name": "Overdue Accounts",
+    "Source_to_be_looked_at_in_ocr": "Bureau Report",
+    "Field_data_found_in_OCR": "0",
+    "Source_where_actually_data_is_found": "Document 4 (CIBIL Report)",
+    "ai_comments": "Report indicates zero overdue accounts.",
+    "Source_found_in_OCR": "Document 4 (CIBIL Report)",
+    "AI_Comments": "Report indicates zero overdue accounts."
+  },
+  {
+    "s_no": 42,
+    "field_name": "KYC Match Status",
+    "Source_to_be_looked_at_in_ocr": "eKYC",
+    "Field_data_found_in_OCR": "Data not found in Document OCR",
+    "Source_where_actually_data_is_found": "Document 4 (eKYC section)",
+    "ai_comments": "KYC match status not explicitly mentioned.",
+    "Source_found_in_OCR": "Document 4 (eKYC section)",
+    "AI_Comments": "KYC match status not explicitly mentioned."
+  },
+  {
+    "s_no": 43,
+    "field_name": "KYC Match Status",
+    "Source_to_be_looked_at_in_ocr": "DigiLocker",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 44,
+    "field_name": "Bank Account Verification",
+    "Source_to_be_looked_at_in_ocr": "eNACH Mandate",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 45,
+    "field_name": "Bank Account Verification",
+    "Source_to_be_looked_at_in_ocr": "Bank Statement",
+    "Field_data_found_in_OCR": "Verified",
+    "Source_where_actually_data_is_found": "Document 5 (HDFC Bank Statement)",
+    "ai_comments": "Account details match; verification confirmed.",
+    "Source_found_in_OCR": "Document 5 (HDFC Bank Statement)",
+    "AI_Comments": "Account details match; verification confirmed."
+  },
+  {
+    "s_no": 46,
+    "field_name": "Mandate Status",
+    "Source_to_be_looked_at_in_ocr": "eNACH Mandate",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  },
+  {
+    "s_no": 47,
+    "field_name": "Application Type (Salaried/Self-employed)",
+    "Source_to_be_looked_at_in_ocr": "Application Form",
+    "Field_data_found_in_OCR": "Salaried",
+    "Source_where_actually_data_is_found": "Document 9 (Application Form)",
+    "ai_comments": "Checkbox indicates salaried applicant.",
+    "Source_found_in_OCR": "Document 9 (Application Form)",
+    "AI_Comments": "Checkbox indicates salaried applicant."
+  },
+  {
+    "s_no": 48,
+    "field_name": "Salary Mode (Cash/Bank)",
+    "Source_to_be_looked_at_in_ocr": "Salary Slip",
+    "Field_data_found_in_OCR": "Bank",
+    "Source_where_actually_data_is_found": "Document 7 (Salary Slip)",
+    "ai_comments": "Salary appears to be credited to bank account.",
+    "Source_found_in_OCR": "Document 7 (Salary Slip)",
+    "AI_Comments": "Salary appears to be credited to bank account."
+  },
+  {
+    "s_no": 49,
+    "field_name": "Salary Mode (Cash/Bank)",
+    "Source_to_be_looked_at_in_ocr": "Bank Statement",
+    "Field_data_found_in_OCR": "Bank",
+    "Source_where_actually_data_is_found": "Document 5 (HDFC Bank Statement)",
+    "ai_comments": "Salary deposit indicates bank mode.",
+    "Source_found_in_OCR": "Document 5 (HDFC Bank Statement)",
+    "AI_Comments": "Salary deposit indicates bank mode."
+  },
+  {
+    "s_no": 50,
+    "field_name": "Document Verification Status",
+    "Source_to_be_looked_at_in_ocr": "Internal Ops System",
+    "Field_data_found_in_OCR": "Document not found",
+    "Source_where_actually_data_is_found": "",
+    "ai_comments": ""
+  }
+]

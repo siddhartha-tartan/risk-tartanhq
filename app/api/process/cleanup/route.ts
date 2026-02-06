@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
+
+// Note: This cleanup route is designed for serverless environments like Vercel.
+// In Vercel, the filesystem is ephemeral and read-only (except /tmp).
+// Files in /tmp are automatically cleaned up when the function instance terminates.
+// This route is mainly useful for local development or long-running server environments.
 
 // Function to get file age in hours
 function getFileAgeInHours(filePath: string): number {
@@ -18,84 +24,30 @@ type CleanupResult = {
   message: string;
 };
 
-// Function to clean up uploaded ZIP files older than a threshold
-async function cleanupUploadsDirectory(ageThresholdHours = 24): Promise<CleanupResult> {
+// Function to clean up temporary files
+async function cleanupTempDirectory(ageThresholdHours = 1): Promise<CleanupResult> {
   try {
-    const uploadsDir = path.join(process.cwd(), 'uploads');
+    const tempDir = os.tmpdir();
+    const uploadsDir = path.join(tempDir, 'uploads');
+    
     if (!fs.existsSync(uploadsDir)) {
-      console.log('Uploads directory does not exist, nothing to clean');
+      console.log('Temp uploads directory does not exist, nothing to clean');
       return { 
         deleted: 0, 
         errors: 0, 
-        message: 'Uploads directory does not exist' 
+        message: 'Temp uploads directory does not exist' 
       };
     }
 
-    const files = fs.readdirSync(uploadsDir);
+    const directories = fs.readdirSync(uploadsDir);
     let deletedCount = 0;
     let errorCount = 0;
 
-    console.log(`Found ${files.length} files in uploads directory`);
-
-    for (const file of files) {
-      try {
-        const filePath = path.join(uploadsDir, file);
-        
-        // Skip directories and non-zip files
-        if (fs.statSync(filePath).isDirectory() || !file.endsWith('.zip')) {
-          continue;
-        }
-        
-        const fileAge = getFileAgeInHours(filePath);
-        
-        if (fileAge > ageThresholdHours) {
-          console.log(`Deleting old file: ${file} (age: ${fileAge.toFixed(2)} hours)`);
-          fs.unlinkSync(filePath);
-          deletedCount++;
-        }
-      } catch (error) {
-        console.error(`Error processing file ${file}:`, error);
-        errorCount++;
-      }
-    }
-
-    return {
-      deleted: deletedCount,
-      errors: errorCount,
-      message: `Cleaned up ${deletedCount} files older than ${ageThresholdHours} hours`
-    };
-  } catch (error) {
-    console.error('Error cleaning up uploads directory:', error);
-    return {
-      deleted: 0,
-      errors: 1,
-      message: `Error cleaning up: ${error}`
-    };
-  }
-}
-
-// Function to clean up extracted files from public/uploads
-async function cleanupPublicUploadsDirectory(ageThresholdHours = 24): Promise<CleanupResult> {
-  try {
-    const publicUploadsDir = path.join(process.cwd(), 'public', 'uploads');
-    if (!fs.existsSync(publicUploadsDir)) {
-      console.log('Public uploads directory does not exist, nothing to clean');
-      return { 
-        deleted: 0, 
-        errors: 0, 
-        message: 'Public uploads directory does not exist' 
-      };
-    }
-
-    const directories = fs.readdirSync(publicUploadsDir);
-    let deletedCount = 0;
-    let errorCount = 0;
-
-    console.log(`Found ${directories.length} directories in public uploads directory`);
+    console.log(`Found ${directories.length} directories in temp uploads directory`);
 
     for (const dir of directories) {
       try {
-        const dirPath = path.join(publicUploadsDir, dir);
+        const dirPath = path.join(uploadsDir, dir);
         
         // Skip files, only process directories
         if (!fs.statSync(dirPath).isDirectory()) {
@@ -121,7 +73,7 @@ async function cleanupPublicUploadsDirectory(ageThresholdHours = 24): Promise<Cl
       message: `Cleaned up ${deletedCount} directories older than ${ageThresholdHours} hours`
     };
   } catch (error) {
-    console.error('Error cleaning up public uploads directory:', error);
+    console.error('Error cleaning up temp directory:', error);
     return {
       deleted: 0,
       errors: 1,
@@ -132,36 +84,27 @@ async function cleanupPublicUploadsDirectory(ageThresholdHours = 24): Promise<Cl
 
 export async function GET(request: NextRequest) {
   try {
-    // Get threshold from query params or use default (24 hours)
+    // Get threshold from query params or use default (1 hour for temp files)
     const url = new URL(request.url);
-    const ageThresholdHours = parseFloat(url.searchParams.get('ageThreshold') || '24');
+    const ageThresholdHours = parseFloat(url.searchParams.get('ageThreshold') || '1');
     
-    // Get cleanup mode
-    const mode = url.searchParams.get('mode') || 'all';
-    
-    let results = {
-      uploads: null as CleanupResult | null,
-      publicUploads: null as CleanupResult | null,
+    const results = {
+      tempUploads: await cleanupTempDirectory(ageThresholdHours),
       totalDeleted: 0,
-      totalErrors: 0
+      totalErrors: 0,
+      environment: process.env.VERCEL ? 'vercel' : 'local'
     };
 
-    if (mode === 'all' || mode === 'uploads') {
-      results.uploads = await cleanupUploadsDirectory(ageThresholdHours);
-      results.totalDeleted += results.uploads.deleted;
-      results.totalErrors += results.uploads.errors;
-    }
-
-    if (mode === 'all' || mode === 'public') {
-      results.publicUploads = await cleanupPublicUploadsDirectory(ageThresholdHours);
-      results.totalDeleted += results.publicUploads.deleted;
-      results.totalErrors += results.publicUploads.errors;
-    }
+    results.totalDeleted = results.tempUploads.deleted;
+    results.totalErrors = results.tempUploads.errors;
 
     return NextResponse.json({
       success: true,
       results,
-      message: `Cleanup completed. Deleted ${results.totalDeleted} items with ${results.totalErrors} errors.`
+      message: `Cleanup completed. Deleted ${results.totalDeleted} items with ${results.totalErrors} errors.`,
+      note: process.env.VERCEL 
+        ? 'Running on Vercel - temp files are automatically cleaned up when function instances terminate.'
+        : 'Running locally - manual cleanup of temp files.'
     });
   } catch (error) {
     console.error('Error in cleanup endpoint:', error);
@@ -172,4 +115,4 @@ export async function GET(request: NextRequest) {
       details: error instanceof Error ? error.message : String(error)
     }, { status: 500 });
   }
-} 
+}

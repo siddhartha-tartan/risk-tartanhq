@@ -29,9 +29,17 @@ yarn-error.log*
 # uploaded files
 /uploads/*
 !uploads/.gitkeep
+/public/uploads/*
+!public/uploads/.gitkeep
 
 # python
 *.pyc
 __pycache__
 *.egg-info/
-.env.local 
+
+# build artifacts
+tsconfig.tsbuildinfo
+
+# misc data files
+*.json.bak
+Animation*.json 

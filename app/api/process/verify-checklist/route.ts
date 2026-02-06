@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { EnhancedDummyData } from '@/utils/mockingState';
 import OpenAI from 'openai';
 
 // Initialize OpenAI client
@@ -16,12 +17,67 @@ interface Document {
 export async function POST(request: NextRequest) {
   try {
     const { documents } = await request.json() as { documents: Document[] };
+
+    // Check for mock mode header
+    const mockMode = request.headers.get('X-Mock-Mode');
+    if (mockMode === 'enabled') {
+      console.log('🎭 MOCK MODE: Returning enhanced checklist verification dummy data');
+      
+      // Add 15-second realistic processing delay for demo
+      await new Promise(resolve => setTimeout(resolve, 15000));
+      
+      return NextResponse.json({
+        success: true,
+        verificationResults: EnhancedDummyData.creditAssessmentMemo,
+        rawLlmOutput: `🔍 **DOCUMENT VERIFICATION COMPLETE** - Enhanced Demo Mode
+
+✨ **MOCK MODE ACTIVE** - Showcasing Advanced Document Processing
+
+📊 **Verification Statistics:**
+- Documents Analyzed: ${documents?.length || 9}
+- Data Points Extracted: ${EnhancedDummyData.creditAssessmentMemo.length}
+- Verification Success Rate: ${Math.round((EnhancedDummyData.creditAssessmentMemo.filter((item: any) => item.verification_status === 'VERIFIED').length / EnhancedDummyData.creditAssessmentMemo.length) * 100)}%
+- Processing Time: 1.8 seconds (demo accelerated)
+
+🎯 **Key Verifications Completed:**
+${EnhancedDummyData.creditAssessmentMemo.slice(0, 10).map((item: any, index: number) => 
+  `${index + 1}. ${item.field_name} - ${item.verification_status || 'VERIFIED'} (${item.confidence_score || 95}% confidence)`
+).join('\n')}
+
+🏆 **AI Processing Highlights:**
+- Cross-document validation completed
+- Identity verification: 100% match
+- Income verification: ✅ Confirmed
+- Employment details: ✅ Validated  
+- Banking information: ✅ Verified
+- Credit history: ✅ Analyzed
+
+🚀 **Advanced Features Demonstrated:**
+- Intelligent field extraction
+- Document type classification
+- Cross-reference validation
+- Confidence scoring algorithms
+- Real-time data verification
+
+💡 **Business Value:**
+- Verification time: 1.8s (vs 45+ minutes manual)
+- Data accuracy: ${Math.round((EnhancedDummyData.creditAssessmentMemo.filter((item: any) => item.verification_status === 'VERIFIED').length / EnhancedDummyData.creditAssessmentMemo.length) * 100)}%
+- Cost reduction: 90%+ vs manual processing
+- Risk detection: Multi-layered analysis
+
+This enhanced demo showcases our enterprise document verification platform.`,
+        processingTime: '1.8s',
+        dataPointsExtracted: EnhancedDummyData.creditAssessmentMemo.length,
+        verificationRate: 94,
+        confidenceScore: 96
+      });
+    }
     
     // Format OCR data for the prompt
     const ocrData = documents.map(doc => {
       // Try to guess the document type from filename
       let docType = 'Unknown Document';
-      const filename = doc.filename.toLowerCase();
+      const filename = doc && doc.filename ? doc.filename.toLowerCase() : '';
       
       if (filename.includes('aadhar') || filename.includes('aadhaar')) {
         docType = 'Aadhaar Card';
@@ -54,6 +110,8 @@ export async function POST(request: NextRequest) {
         content: doc.ocrText || 'No OCR text available'
       };
     });
+
+
 
     // Template to be populated
     const template = [

@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/legacy/image';
 import { documentStore } from '@/utils/documentStore';
+import { MockingStateManager } from '@/utils/mockingState';
+import AppLayout from '@/app/components/AppLayout';
 
 // File type to icon mapping
 const fileTypeIcons = {
@@ -14,14 +16,39 @@ const fileTypeIcons = {
   default: '/icons/document-icon.png',
 };
 
+// Loading fallback for Suspense
+function LoadingFallback() {
+  return (
+    <AppLayout>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    </AppLayout>
+  );
+}
+
 export default function BusinessDocumentMappingPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <BusinessDocumentMappingContent />
+    </Suspense>
+  );
+}
+
+function BusinessDocumentMappingContent() {
   const [documents, setDocuments] = useState<any[]>([]);
   const [currentDocIndex, setCurrentDocIndex] = useState(0);
   const [error, setError] = useState('');
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isMockMode, setIsMockMode] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  // Check initial mock mode state
+  useEffect(() => {
+    setIsMockMode(MockingStateManager.isMockModeEnabled());
+  }, []);
 
   useEffect(() => {
     // Get session ID from URL if available
@@ -85,6 +112,14 @@ export default function BusinessDocumentMappingPage() {
     setCurrentDocIndex(index);
   };
 
+  const handleActivateDemoMode = () => {
+    if (!isMockMode) {
+      MockingStateManager.enableMockMode();
+      setIsMockMode(true);
+      console.log('🎭 Demo mode activated via heading click');
+    }
+  };
+
   const handleOcrTextChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (!currentDocument) return;
     
@@ -121,7 +156,10 @@ export default function BusinessDocumentMappingPage() {
       // No need to reprocess the original ZIP file
       const response = await fetch('/api/process/analyze-business-documents', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...MockingStateManager.getMockHeaders()
+        },
         body: JSON.stringify({ 
           documents: docsWithOcr.map(doc => ({
             id: doc.id,
@@ -202,40 +240,35 @@ export default function BusinessDocumentMappingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Business Document Review</h1>
-            <p className="text-gray-600">Review extracted data from business loan documents</p>
-          </div>
-          
-          <div className="flex space-x-3">
-            <button
-              onClick={handleDownloadJson}
-              className="px-5 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 flex items-center"
-              disabled={isProcessing}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <AppLayout>
+      <div className="min-h-screen bg-gray-50 p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h1 
+                className={`text-2xl font-bold cursor-pointer select-none transition-colors duration-200 ${
+                  isMockMode 
+                    ? 'text-gray-800 border-b-2 border-yellow-400 pb-1' 
+                    : 'text-gray-900 hover:text-gray-700'
+                }`}
+                onClick={handleActivateDemoMode}
+                title={isMockMode ? "Demo Mode Active" : "Click to activate demo mode"}
+              >
+                Business Document Review
+              </h1>
+              <p className="text-gray-600">Review extracted data from business loan documents</p>
+            </div>
+            
+            <div className="flex space-x-3">
+              <button
+                onClick={handleDownloadJson}
+                className="px-5 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 flex items-center"
+                disabled={isProcessing}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
               Download JSON
-            </button>
-            <button
-              onClick={handleContinue}
-              className={`px-5 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 flex items-center ${isProcessing ? 'opacity-75 cursor-not-allowed' : ''}`}
-              disabled={isProcessing}
-            >
-              {isProcessing ? (
-                <>
-                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent align-[-0.125em] mr-2"></span>
-                  Processing...
-                </>
-              ) : (
-                <>
-                  Proceed to Assessment <span className="ml-2">→</span>
-                </>
-              )}
             </button>
           </div>
         </div>
@@ -246,37 +279,6 @@ export default function BusinessDocumentMappingPage() {
         )}
 
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          {/* Header with navigation */}
-          <div className="border-b border-gray-200 p-4 bg-gray-50 flex items-center justify-between">
-            <h1 className="text-xl font-semibold text-gray-800">Review OCR Text</h1>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => currentDocIndex > 0 && handleDocumentChange(currentDocIndex - 1)}
-                disabled={currentDocIndex === 0}
-                className={`p-2 rounded-md ${
-                  currentDocIndex === 0 ? 'text-gray-300' : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-              </button>
-              <span className="text-gray-700">
-                Document {currentDocIndex + 1} of {documents.length}
-              </span>
-              <button
-                onClick={() => currentDocIndex < documents.length - 1 && handleDocumentChange(currentDocIndex + 1)}
-                disabled={currentDocIndex === documents.length - 1}
-                className={`p-2 rounded-md ${
-                  currentDocIndex === documents.length - 1 ? 'text-gray-300' : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                </svg>
-              </button>
-            </div>
-          </div>
           
           {/* Document Navigator (Sidebar) */}
           <div className="flex h-[calc(100vh-220px)]">
@@ -441,5 +443,6 @@ export default function BusinessDocumentMappingPage() {
         </div>
       </div>
     </div>
+    </AppLayout>
   );
 } 

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { EnhancedDummyData } from '@/utils/mockingState';
 import OpenAI from 'openai';
 
 // Initialize OpenAI client
@@ -9,7 +10,39 @@ const openai = new OpenAI({
 
 export async function POST(request: NextRequest) {
   try {
-    const { ocrText, documentType } = await request.json();
+    const { ocrText, documentType, filename } = await request.json();
+
+    // Check for mock mode header
+    const mockMode = request.headers.get('X-Mock-Mode');
+    if (mockMode === 'enabled') {
+      console.log('🎭 MOCK MODE: Returning enhanced dummy data for extract-data');
+      
+      // Add 15-second realistic processing delay for demo
+      await new Promise(resolve => setTimeout(resolve, 15000));
+      
+      // Return enhanced dummy data based on credit assessment memo
+      return NextResponse.json({
+        success: true,
+        extractedData: EnhancedDummyData.creditAssessmentMemo,
+        rawLlmOutput: `🤖 AI Data Extraction Complete - Enhanced Demo Mode
+        
+✨ **MOCK MODE ACTIVE** - This is enhanced demonstration data showcasing our AI capabilities
+
+📊 **Data Points Extracted:** ${EnhancedDummyData.creditAssessmentMemo.length} fields
+🎯 **Accuracy Score:** 94.2% (Simulated)
+⚡ **Processing Time:** 0.8 seconds (Demo acceleration)
+
+🏆 **Key Achievements:**
+- Perfect PAN/Aadhaar matching
+- Complete income verification
+- Comprehensive employment validation
+- Advanced risk scoring applied
+
+This enhanced demo demonstrates the full power of our AI-driven document analysis platform.`,
+        processingTime: '0.8s',
+        confidence: 94.2
+      });
+    }
 
     if (!ocrText) {
       return NextResponse.json(
@@ -18,7 +51,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log(`[EXTRACT-DATA DEBUG] filename: "${filename}"`);
+    console.log(`[EXTRACT-DATA DEBUG] documentType: "${documentType}"`);
     console.log(`Processing document type: ${documentType || 'unknown'}`);
+    
+
     
     try {
       // Use GPT-4.1 mini to extract structured data from the OCR text

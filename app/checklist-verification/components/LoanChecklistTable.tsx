@@ -1,10 +1,38 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface LoanChecklistTableProps {
   data: any[];
 }
 
 const LoanChecklistTable: React.FC<LoanChecklistTableProps> = ({ data }) => {
+  const [openCategories, setOpenCategories] = useState<string[]>([]);
+
+  // Group data by category and memoize it
+  const groupedData = React.useMemo(() => {
+    return data.reduce((acc, item) => {
+      const category = item.Categories || "Uncategorized";
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(item);
+      return acc;
+    }, {} as Record<string, any[]>);
+  }, [data]);
+
+  useEffect(() => {
+    setOpenCategories(Object.keys(groupedData));
+  }, [groupedData]);
+
+  const toggleAccordion = (category: string) => {
+    setOpenCategories(prevOpen => {
+      if (prevOpen.includes(category)) {
+        return prevOpen.filter(c => c !== category);
+      } else {
+        return [...prevOpen, category];
+      }
+    });
+  };
+
   // Get status based on the "Data Entry Matching" field
   const getStatus = (item: any) => {
     const matching = item["Data Entry Matching (Answer Yes or No)"];
@@ -91,68 +119,87 @@ const LoanChecklistTable: React.FC<LoanChecklistTableProps> = ({ data }) => {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/5">Category</th>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">Document</th>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Status</th>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/5">Matching Documents</th>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">AI Comments</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {data && data.length > 0 ? (
-              data.map((item, index) => (
-                <tr 
-                  key={index}
-                  className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-gray-100 ${
-                    item.Applicant && item.Applicant.toLowerCase() === 'mandatory' ? 'font-medium' : ''
-                  }`}
-                >
-                  <td className="px-3 py-2 text-sm text-gray-900">
-                    {item.Categories || "N/A"}
-                    {item["Subcategory (if applicable)"] && item["Subcategory (if applicable)"] !== "no subcat" && (
-                      <span className="block text-xs text-gray-500 mt-1">
-                        {item["Subcategory (if applicable)"]}
-                      </span>
-                    )}
-                    {item.Applicant && item.Applicant.toLowerCase() === 'mandatory' && (
-                      <span className="inline-block px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full ml-1">
-                        Mandatory
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-3 py-2 text-sm text-gray-600 truncate max-w-xs">
-                    {item.Document || "N/A"}
-                  </td>
-                  <td className="px-3 py-2 text-sm">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                      getStatus(item) === 'Verified' ? 'bg-green-100 text-green-800' :
-                      getStatus(item) === 'Not Verified' ? 'bg-red-100 text-red-800' :
-                      'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {getStatus(item)}
-                    </span>
-                  </td>
-                  <td className="px-3 py-2 text-sm text-gray-600">
-                    {item["Matching Documents"] || "N/A"}
-                  </td>
-                  <td className="px-3 py-2 text-sm text-gray-600 break-words max-w-xs">
-                    {item["AI Comments (reasoning behind decision)"] || "No comments available"}
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={5} className="px-3 py-2 text-sm text-center text-gray-500">
-                  No checklist items available
-                </td>
-              </tr>
+      <div className="space-y-2">
+        {(Object.entries(groupedData) as [string, any[]][]).map(([category, items]) => (
+          <div key={category} className="border border-gray-200 rounded-md">
+            <button
+              onClick={() => toggleAccordion(category)}
+              className="w-full flex justify-between items-center p-3 bg-gray-50 hover:bg-gray-100 focus:outline-none"
+            >
+              <h3 className="font-medium text-gray-800">{category}</h3>
+              <svg
+                className={`w-5 h-5 text-gray-500 transform transition-transform ${
+                  openCategories.includes(category) ? 'rotate-180' : ''
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {openCategories.includes(category) && (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-2/5">Document</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Status</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/5">Matching Documents</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">AI Comments</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {items.map((item, index) => (
+                      <tr
+                        key={index}
+                        className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-gray-100 ${
+                          item.Applicant && item.Applicant.toLowerCase() === 'mandatory' ? 'font-medium' : ''
+                        }`}
+                      >
+                        <td className="px-3 py-2 text-sm text-gray-900">
+                          {item.Document || "N/A"}
+                          {item["Subcategory (if applicable)"] && item["Subcategory (if applicable)"] !== "no subcat" && (
+                            <span className="block text-xs text-gray-500 mt-1">
+                              {item["Subcategory (if applicable)"]}
+                            </span>
+                          )}
+                          {item.Applicant && item.Applicant.toLowerCase() === 'mandatory' && (
+                            <span className="inline-block px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full ml-1">
+                              Mandatory
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-3 py-2 text-sm">
+                          <span
+                            className={`px-2 py-1 text-xs font-medium rounded-full ${
+                              getStatus(item) === 'Verified' ? 'bg-green-100 text-green-800' :
+                              getStatus(item) === 'Not Verified' ? 'bg-red-100 text-red-800' :
+                              'bg-yellow-100 text-yellow-800'
+                            }`}
+                          >
+                            {getStatus(item)}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2 text-sm text-gray-600">
+                          {item["Matching Documents"] || "N/A"}
+                        </td>
+                        <td className="px-3 py-2 text-sm text-gray-600 break-words max-w-xs">
+                          {item["AI Comments (reasoning behind decision)"] || "No comments available"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
-          </tbody>
-        </table>
+          </div>
+        ))}
+        {Object.keys(groupedData).length === 0 && (
+          <div className="px-3 py-2 text-sm text-center text-gray-500">
+            No checklist items available
+          </div>
+        )}
       </div>
     </div>
   );

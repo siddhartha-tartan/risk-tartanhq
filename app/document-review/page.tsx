@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/legacy/image';
 import { documentStore } from '@/utils/documentStore';
 import { personalLoanDocumentTypes, getDocumentTypeName as getDocType } from '@/models/DocumentTypes';
+import AppLayout from '@/app/components/AppLayout';
 
 // File type to icon mapping
 const fileTypeIcons = {
@@ -97,39 +98,42 @@ export default function DocumentReviewPage() {
 
   if (error && documents.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
-          <div className="text-center text-red-600 mb-4">{error}</div>
-          <button
-            onClick={() => router.push('/upload')}
-            className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-          >
-            Return to Upload
-          </button>
+      <AppLayout>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
+            <div className="text-center text-red-600 mb-4">{error}</div>
+            <button
+              onClick={() => router.push('/upload')}
+              className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+            >
+              Return to Upload
+            </button>
+          </div>
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      {error && (
-        <div className="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg">
-          {error}
-        </div>
-      )}
+    <AppLayout>
+      <div className="min-h-screen bg-gray-50 p-6">
+        {error && (
+          <div className="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg">
+            {error}
+          </div>
+        )}
 
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        {/* Header */}
-        <div className="border-b border-gray-200 p-4 bg-gray-50">
-          <h1 className="text-xl font-semibold text-gray-800">Review AI Document Classification</h1>
-          <p className="text-sm text-gray-600 mt-1">
-            Review and confirm the document types identified by AI
-          </p>
-        </div>
+        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          {/* Header */}
+          <div className="border-b border-gray-200 p-4 bg-gray-50">
+            <h1 className="text-xl font-semibold text-gray-800">Review AI Document Classification</h1>
+            <p className="text-sm text-gray-600 mt-1">
+              Review and confirm the document types identified by AI
+            </p>
+          </div>
 
-        {/* Document List */}
-        <div className="overflow-y-auto p-4" style={{ maxHeight: 'calc(100vh - 250px)' }}>
+          {/* Document List */}
+          <div className="overflow-y-auto p-4" style={{ maxHeight: 'calc(100vh - 250px)' }}>
           <div className="space-y-4">
             {documents.map((doc, index) => (
               <div key={doc.id} className="border border-gray-200 rounded-lg overflow-hidden">
@@ -192,6 +196,7 @@ export default function DocumentReviewPage() {
         </div>
       </div>
     </div>
+    </AppLayout>
   );
 }
 

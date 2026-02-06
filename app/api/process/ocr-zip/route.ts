@@ -1,128 +1,114 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { spawn } from 'child_process';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import fs from 'fs';
 import os from 'os';
-import { promisify } from 'util';
-import { exec } from 'child_process';
+import { writeFile, mkdir, rm, readFile } from 'fs/promises';
+import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
+import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 
-const execPromise = promisify(exec);
+// OCR API configuration from environment variables
+const OCR_API_URL = process.env.OCR_API_URL || 'https://nc3y3gmff4.execute-api.ap-south-1.amazonaws.com/v1/api/v1/cam_ocr';
+const OCR_API_USERNAME = process.env.OCR_API_USERNAME || '';
+const OCR_API_PASSWORD = process.env.OCR_API_PASSWORD || '';
+
+// S3 configuration
+const BUCKET_NAME = process.env.S3_BUCKET || 'ai-policy-benchmark';
+const AWS_REGION = process.env.AWS_REGION || 'ap-south-1';
+
+// Initialize S3 client
+const s3Client = new S3Client({
+  region: AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+  },
+});
+
+// Call OCR API directly using fetch (replaces Python script)
+async function callOcrApi(requestId: string, bucketName: string, s3Key: string) {
+  console.log(`[OCR API] Starting OCR processing with request_id=${requestId}, bucket=${bucketName}, s3_key=${s3Key}`);
+  
+  const payload = {
+    request_id: requestId,
+    bucket_name: bucketName,
+    s3_key: s3Key
+  };
+
+  console.log(`[OCR API] Sending request to: ${OCR_API_URL}`);
+  console.log(`[OCR API] Request payload:`, JSON.stringify(payload));
+
+  try {
+    const response = await fetch(OCR_API_URL, {
+      method: 'POST',
+      headers: {
+        'Username': OCR_API_USERNAME,
+        'Password': OCR_API_PASSWORD,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    console.log(`[OCR API] Response status code: ${response.status}`);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`[OCR API] Error response: ${errorText.substring(0, 500)}...`);
+      throw new Error(`OCR API returned status ${response.status}: ${errorText.substring(0, 200)}`);
+    }
+
+    const responseText = await response.text();
+    console.log(`[OCR API] Response text length: ${responseText.length}`);
+
+    try {
+      const responseJson = JSON.parse(responseText);
+
+      // Check if response is an error message even with 200 status
+      if (responseJson.status_code && responseJson.status_code !== '200') {
+        throw new Error(`OCR API error: ${responseJson.message || 'Unknown error'}`);
+      }
+
+      // Check if it looks like valid OCR data
+      if (Object.keys(responseJson).length === 0) {
+        throw new Error('OCR API returned empty JSON object');
+      }
+
+      console.log(`[OCR API] Successfully extracted OCR data for ${Object.keys(responseJson).length} files`);
+      return responseJson;
+
+    } catch (parseError: any) {
+      console.error(`[OCR API] JSON parse error:`, parseError);
+      throw new Error(`Failed to parse OCR API response: ${parseError.message}`);
+    }
+
+  } catch (fetchError: any) {
+    console.error(`[OCR API] Fetch error:`, fetchError);
+    throw new Error(`OCR API request failed: ${fetchError.message}`);
+  }
+}
 
 // Add retry mechanism for OCR API call
 async function callOcrApiWithRetry(s3Key: string, maxRetries = 2) {
   let retryCount = 0;
-  let error = null;
-  let extractedFiles = [];
+  let lastError: Error | null = null;
 
   while (retryCount <= maxRetries) {
     try {
       console.log(`OCR API call attempt ${retryCount + 1} of ${maxRetries + 1}`);
       
       // Generate a unique request ID
-      const requestId = crypto.randomUUID();
+      const requestId = uuidv4();
       
-      // First extract files from the ZIP
-      const localZipPath = path.join(process.cwd(), 'uploads', s3Key);
-      extractedFiles = await extractFilesFromZip(localZipPath, requestId);
-      console.log(`Successfully extracted ${extractedFiles.length} files for processing`);
+      // Call OCR API directly
+      const ocrResult = await callOcrApi(requestId, BUCKET_NAME, s3Key);
       
-      // Check if the Python script exists
-      const scriptPath = path.join(process.cwd(), 'scripts', 'ocr_api.py');
-      if (!fs.existsSync(scriptPath)) {
-        throw new Error(`OCR Python script not found at ${scriptPath}. Make sure the script exists.`);
-      }
-      
-      // Call Python script to process the extracted files
-      const ocrProcess = spawn('python3', [
-        scriptPath, // Use absolute path
-        requestId,
-        'ai-policy-benchmark', // S3 bucket name
-        s3Key
-      ]);
-      
-      // Collect stdout and stderr
-      let stdout = '';
-      let stderr = '';
-      
-      ocrProcess.stdout.on('data', (data) => {
-        stdout += data.toString();
-        console.log('Python stdout chunk:', data.toString());
-      });
-      
-      ocrProcess.stderr.on('data', (data) => {
-        stderr += data.toString();
-        console.error('Python stderr:', data.toString());
-      });
-      
-      // Wait for process to complete
-      const exitCode = await new Promise((resolve) => {
-        ocrProcess.on('close', resolve);
-      });
-      
-      console.log(`Python process exited with code ${exitCode}`);
-      console.log(`Full Python stdout output length: ${stdout.length}`);
-      console.log(`Python stdout preview: ${stdout.substring(0, 200)}...`);
-      
-      if (exitCode !== 0) {
-        throw new Error(`OCR process failed with exit code ${exitCode}. Error: ${stderr}`);
-      }
-      
-      // Try to extract JSON data from the stdout
-      const stdoutLines = stdout.split('\n');
-      console.log(`Found ${stdoutLines.length} lines in stdout`);
-      
-      let jsonData = null;
-      
-      // Look for a JSON line in the output
-      for (let i = stdoutLines.length - 1; i >= 0; i--) {
-        const line = stdoutLines[i].trim();
-        if (line.startsWith('{') && line.endsWith('}')) {
-          try {
-            jsonData = JSON.parse(line);
-            console.log(`Found JSON data on line ${i + 1} of ${stdoutLines.length} lines`);
-            break;
-          } catch (e) {
-            console.log(`Line ${i + 1} looks like JSON but failed to parse:`, e);
-          }
-        }
-      }
-      
-      // Check if we found valid OCR data
-      if (jsonData) {
-        // Check for error flag in JSON
-        if (jsonData.error) {
-          throw new Error(`OCR API error: ${jsonData.message || 'Unknown error'}`);
-        }
-        
-        // For backward compatibility, try different properties
-        const ocrResults = 
-          jsonData.results || 
-          jsonData.file_ocr_map || 
-          jsonData.rawResponse || 
-          jsonData;
-        
-        // Check for OCR data
-        if (typeof ocrResults === 'object' && ocrResults !== null) {
-          const fileCount = Object.keys(ocrResults).length;
-          console.log(`OCR data contains information for ${fileCount} files`);
-          
-          if (fileCount > 0) {
-            return {
-              result: ocrResults,
-              localFiles: extractedFiles // Use our extracted files here
-            };
-          }
-        }
-        
-        throw new Error('OCR process completed but returned empty or invalid results');
-      } else {
-        throw new Error('Could not extract JSON data from OCR process output');
-      }
-      
-    } catch (err) {
-      error = err;
+      return {
+        result: ocrResult,
+        requestId
+      };
+
+    } catch (err: any) {
+      lastError = err;
       console.error(`OCR API call failed (attempt ${retryCount + 1}):`, err);
       retryCount++;
       
@@ -136,29 +122,55 @@ async function callOcrApiWithRetry(s3Key: string, maxRetries = 2) {
   }
   
   // If we get here, all retries failed
-  throw error || new Error('OCR API call failed after multiple retries');
+  throw lastError || new Error('OCR API call failed after multiple retries');
 }
 
-// Add this function after the existing callOcrApiWithRetry function
-async function extractFilesFromZip(zipPath: string, requestId: string) {
-  console.log(`Extracting files from ZIP: ${zipPath}`);
-
-  // Create a directory for extracted files
-  const extractDir = path.join(process.cwd(), 'public', 'uploads', requestId);
-  await fs.promises.mkdir(extractDir, { recursive: true });
-
-  if (!fs.existsSync(zipPath)) {
-    throw new Error(`ZIP file not found at ${zipPath}`);
-  }
+// Extract files from ZIP stored in S3 to temp directory
+async function extractFilesFromS3Zip(s3Key: string, requestId: string) {
+  console.log(`Extracting files from S3 ZIP: ${s3Key}`);
+  
+  // Create a temp directory for extracted files
+  const tempDir = os.tmpdir();
+  const extractDir = path.join(tempDir, 'uploads', requestId);
+  await mkdir(extractDir, { recursive: true });
 
   try {
-    const zip = new AdmZip(zipPath);
+    // Download ZIP from S3
+    console.log(`Downloading ZIP from S3 bucket: ${BUCKET_NAME}, key: ${s3Key}`);
+    
+    const getCommand = new GetObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: s3Key,
+    });
+    
+    const s3Response = await s3Client.send(getCommand);
+    
+    if (!s3Response.Body) {
+      throw new Error('S3 response body is empty');
+    }
+    
+    // Convert stream to buffer
+    const chunks: Uint8Array[] = [];
+    const stream = s3Response.Body as AsyncIterable<Uint8Array>;
+    for await (const chunk of stream) {
+      chunks.push(chunk);
+    }
+    const zipBuffer = Buffer.concat(chunks);
+    
+    console.log(`Downloaded ZIP file, size: ${zipBuffer.length} bytes`);
+    
+    // Save ZIP to temp location for extraction
+    const tempZipPath = path.join(tempDir, `${requestId}_temp.zip`);
+    await writeFile(tempZipPath, zipBuffer);
+    
+    // Extract using AdmZip
+    const zip = new AdmZip(tempZipPath);
     const zipEntries = zip.getEntries();
     console.log(`Found ${zipEntries.length} total entries in ZIP file`);
 
     // Extract files and track valid ones
-    const validFiles = [];
-    const skippedFiles = [];
+    const validFiles: Array<{name: string, path: string, type: string}> = [];
+    const skippedFiles: Array<{name: string, reason: string}> = [];
 
     for (const entry of zipEntries) {
       if (entry.isDirectory) {
@@ -182,7 +194,7 @@ async function extractFilesFromZip(zipPath: string, requestId: string) {
         const targetPath = path.join(extractDir, fileName);
         zip.extractEntryTo(entry, extractDir, false, true);
         
-        if (fs.existsSync(targetPath)) {
+        if (existsSync(targetPath)) {
           validFiles.push({
             name: fileName,
             path: `/uploads/${requestId}/${fileName}`,
@@ -199,38 +211,38 @@ async function extractFilesFromZip(zipPath: string, requestId: string) {
       }
     }
     
+    // Clean up temp zip file
+    try {
+      await rm(tempZipPath, { force: true });
+    } catch (cleanupError) {
+      console.error('Failed to clean up temp zip file:', cleanupError);
+    }
+    
     console.log(`Extracted ${validFiles.length} valid files, skipped ${skippedFiles.length} files`);
     
     if (validFiles.length === 0) {
-      // Check what types of files were skipped
-      const reasons = skippedFiles.map(f => f.reason);
-      const uniqueReasons = Array.from(new Set(reasons));
+      // Clean up the empty directory before throwing
+      try {
+        await rm(extractDir, { recursive: true, force: true });
+      } catch (cleanupError) {
+        console.error(`Failed to clean up directory: ${cleanupError}`);
+      }
       
       if (skippedFiles.length === 0) {
-        // Clean up the empty directory before throwing
-        try {
-          await fs.promises.rm(extractDir, { recursive: true, force: true });
-        } catch (cleanupError) {
-          console.error(`Failed to clean up directory after finding empty ZIP: ${cleanupError}`);
-        }
         throw new Error('ZIP file is empty or contains no files');
       } else {
-        // Clean up the directory with invalid files before throwing
-        try {
-          await fs.promises.rm(extractDir, { recursive: true, force: true });
-        } catch (cleanupError) {
-          console.error(`Failed to clean up directory after finding no valid files: ${cleanupError}`);
-        }
-        throw new Error(`No valid files found in ZIP. Skipped ${skippedFiles.length} files due to: ${uniqueReasons.join(', ')}`);
+        const reasons = Array.from(new Set(skippedFiles.map(f => f.reason)));
+        throw new Error(`No valid files found in ZIP. Skipped ${skippedFiles.length} files due to: ${reasons.join(', ')}`);
       }
     }
     
-    return validFiles;
+    return { validFiles, extractDir };
+    
   } catch (error: any) {
     // Clean up any partially extracted files
     try {
-      if (fs.existsSync(extractDir)) {
-        await fs.promises.rm(extractDir, { recursive: true, force: true });
+      if (existsSync(extractDir)) {
+        await rm(extractDir, { recursive: true, force: true });
         console.log(`Cleaned up extraction directory after error: ${extractDir}`);
       }
     } catch (cleanupError) {
@@ -244,25 +256,17 @@ async function extractFilesFromZip(zipPath: string, requestId: string) {
   }
 }
 
-async function cleanupLocalFiles(requestId: string, s3Key: string) {
+async function cleanupLocalFiles(extractDir: string) {
   try {
-    console.log(`Starting cleanup of local files for request ${requestId}`);
+    console.log(`Starting cleanup of local files: ${extractDir}`);
     
     // Delete the extracted files directory
-    const extractDir = path.join(process.cwd(), 'public', 'uploads', requestId);
-    if (fs.existsSync(extractDir)) {
-      await fs.promises.rm(extractDir, { recursive: true, force: true });
+    if (existsSync(extractDir)) {
+      await rm(extractDir, { recursive: true, force: true });
       console.log(`Deleted extracted files directory: ${extractDir}`);
     }
     
-    // Delete the original zip file
-    const zipPath = path.join(process.cwd(), 'uploads', s3Key);
-    if (fs.existsSync(zipPath)) {
-      await fs.promises.unlink(zipPath);
-      console.log(`Deleted original zip file: ${zipPath}`);
-    }
-    
-    console.log(`Cleanup completed successfully for request ${requestId}`);
+    console.log(`Cleanup completed successfully`);
   } catch (error) {
     console.error(`Error during cleanup: ${error}`);
     // We don't throw here to avoid failing the request if cleanup fails
@@ -278,53 +282,40 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No S3 key provided' }, { status: 400 });
     }
     
-    let requestId = '';
+    console.log(`[OCR ROUTE DEBUG] Received s3Key: "${s3Key}"`);
+    
+    let extractDir = '';
+    
     try {
       // Call OCR API with retry logic
       const ocrResult = await callOcrApiWithRetry(s3Key);
       
-      // Extract requestId from the first file path (if any files were extracted)
-      if (ocrResult.localFiles && ocrResult.localFiles.length > 0) {
-        const firstFilePath = ocrResult.localFiles[0].path;
-        requestId = firstFilePath.split('/')[2]; // Format is /uploads/requestId/filename
-      }
+      // Extract files from S3 ZIP for preview purposes
+      const { validFiles, extractDir: dir } = await extractFilesFromS3Zip(s3Key, ocrResult.requestId);
+      extractDir = dir;
       
-      // Clean up local files
-      if (requestId) {
-        // Use setTimeout to ensure cleanup happens after response is sent
-        setTimeout(() => cleanupLocalFiles(requestId, s3Key), 100);
-      }
+      // Schedule cleanup after response is sent
+      // Note: In serverless, we should clean up immediately since the function will terminate
+      setTimeout(() => cleanupLocalFiles(extractDir), 100);
       
       return NextResponse.json({
         success: true,
         result: ocrResult.result,
-        localFiles: ocrResult.localFiles
+        localFiles: validFiles
       });
+      
     } catch (ocrError: any) {
       console.error('OCR processing error after retries:', ocrError);
       
-      // Try to extract requestId from error context if possible
-      // This is a best effort attempt to clean up even if processing failed
-      try {
-        if (ocrError.localFiles && ocrError.localFiles.length > 0) {
-          const firstFilePath = ocrError.localFiles[0].path;
-          requestId = firstFilePath.split('/')[2];
-          
-          if (requestId) {
-            setTimeout(() => cleanupLocalFiles(requestId, s3Key), 100);
-          }
-        }
-      } catch (cleanupError) {
-        console.error('Failed to extract requestId for cleanup:', cleanupError);
+      // Clean up if we have an extract directory
+      if (extractDir) {
+        setTimeout(() => cleanupLocalFiles(extractDir), 100);
       }
       
       // Format a user-friendly error message
       let errorMessage = 'OCR processing failed after multiple retries.';
       
-      if (ocrError.message.includes('can\'t open file') || 
-          ocrError.message.includes('No such file')) {
-        errorMessage = 'OCR setup error: OCR processing script not found. Please contact support.';
-      } else if (ocrError.message.includes('OCR process failed with exit code')) {
+      if (ocrError.message.includes('OCR API')) {
         errorMessage = 'OCR processing failed. The service may be temporarily unavailable.';
       }
       

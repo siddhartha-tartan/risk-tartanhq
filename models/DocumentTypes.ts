@@ -32,6 +32,9 @@ export interface Document {
   classificationConfidence?: number; // Confidence score of classification
   userConfirmedType?: string; // Type confirmed/selected by user
   finalDocumentType?: string; // Final document type after all processing
+  userSession?: string; // Session ID for tracking which upload session this document belongs to
+  thumbnailUrl?: string; // Path to the file preview thumbnail
+  filePath?: string; // Path to the file on disk
 }
 
 export interface ExtractedData {
@@ -90,13 +93,29 @@ export const personalLoanDocumentTypes = [
   { id: 'other', name: 'Other Document', description: 'Any other supporting document' }
 ];
 
+// Document type constants for business loans
+export const businessLoanDocumentTypes = [
+  { id: 'pan_card', name: 'PAN Card', description: 'Permanent Account Number card for business identification' },
+  { id: 'aadhaar_card', name: 'Aadhaar Card', description: 'Aadhaar identification of business owner or authorized person' },
+  { id: 'cibil', name: 'CIBIL Report', description: 'Credit Information Bureau India Limited report' },
+  { id: 'itr', name: 'Income Tax Return', description: 'Income Tax Returns for last 2-3 financial years' },
+  { id: 'gst', name: 'GST Documents', description: 'Goods and Services Tax registration and returns' },
+  { id: 'application_form', name: 'Application Form', description: 'Completed business loan application form' },
+  { id: 'electricity_bill', name: 'Electricity Bill', description: 'Recent electricity bill for address verification' },
+  { id: 'consent_email', name: 'Consent Email', description: 'Email showing consent for business loan application' },
+  { id: 'udyam', name: 'Udyam Registration', description: 'MSME/Udyam registration certificate' },
+  { id: 'other', name: 'Other Document', description: 'Any other supporting document for business loan' }
+];
+
 // Function to get document type name by ID
-export const getDocumentTypeName = (typeId: string): string => {
-  const docType = personalLoanDocumentTypes.find(type => type.id === typeId);
+export const getDocumentTypeName = (typeId: string, isBusinessLoan = false): string => {
+  const docTypes = isBusinessLoan ? businessLoanDocumentTypes : personalLoanDocumentTypes;
+  const docType = docTypes.find(type => type.id === typeId);
   return docType ? docType.name : 'Unknown';
 };
 
 // Function to get document type by ID
-export const getDocumentType = (typeId: string) => {
-  return personalLoanDocumentTypes.find(type => type.id === typeId);
+export const getDocumentType = (typeId: string, isBusinessLoan = false) => {
+  const docTypes = isBusinessLoan ? businessLoanDocumentTypes : personalLoanDocumentTypes;
+  return docTypes.find(type => type.id === typeId);
 }; 

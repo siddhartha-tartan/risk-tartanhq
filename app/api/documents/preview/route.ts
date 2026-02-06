@@ -1,70 +1,111 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
+import { getFromS3, getPresignedUrl, getContentType } from '@/utils/s3Client';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const filename = searchParams.get('filename');
+  const source = searchParams.get('source') || 'local'; // 'local', 's3', or 'presigned'
+  const s3Key = searchParams.get('s3Key'); // Optional S3 key if different from filename
   
   if (!filename) {
     console.log(`[PREVIEW API] ERROR: No filename provided in request`);
     return new Response('Filename parameter is required', { status: 400 });
   }
 
-  // Primary location - direct uploads folder
-  const uploadsDir = path.join(process.cwd(), 'uploads');
-  const primaryFilePath = path.join(uploadsDir, filename);
-
-  console.log(`[PREVIEW API] REQUEST: Document preview requested for filename: "${filename}"`);
-  console.log(`[PREVIEW API] SEARCH: Looking for file match at primary location: ${primaryFilePath}`);
+  console.log(`[PREVIEW API] REQUEST: Document preview requested for filename: "${filename}", source: "${source}"`);
   
-  try {
-    // First try - check in the direct uploads folder
+  // If requesting presigned URL, return the URL instead of the file
+  if (source === 'presigned') {
     try {
-      await fs.promises.access(primaryFilePath, fs.constants.F_OK);
-      console.log(`[PREVIEW API] SUCCESS: File found at primary location: ${primaryFilePath}`);
-      
-      // Read and serve the file from primary location
-      const fileBuffer = await fs.promises.readFile(primaryFilePath);
-      console.log(`[PREVIEW API] SERVING: File read successfully from primary location, size: ${fileBuffer.length} bytes`);
+      const key = s3Key || filename;
+      const url = await getPresignedUrl(key, 3600); // 1 hour expiry
+      return NextResponse.json({ url, expiresIn: 3600 });
+    } catch (error: any) {
+      console.error(`[PREVIEW API] Error generating presigned URL:`, error);
+      return new Response(`Error generating presigned URL: ${error.message}`, { status: 500 });
+    }
+  }
+  
+  // If requesting from S3, fetch directly
+  if (source === 's3') {
+    try {
+      const key = s3Key || filename;
+      console.log(`[PREVIEW API] Fetching from S3: ${key}`);
+      const fileBuffer = await getFromS3(key);
+      console.log(`[PREVIEW API] SERVING from S3: File fetched successfully, size: ${fileBuffer.length} bytes`);
       return serveFileResponse(fileBuffer, filename);
-    } catch (err) {
-      console.log(`[PREVIEW API] NOT FOUND: File does not exist at primary location: ${primaryFilePath}`);
-      
-      // If not found in primary location, search in public/uploads subdirectories
-      console.log(`[PREVIEW API] SEARCH: Looking in extracted zip directories...`);
-      const publicUploadsDir = path.join(process.cwd(), 'public', 'uploads');
+    } catch (error: any) {
+      console.error(`[PREVIEW API] S3 error:`, error);
+      return new Response(`File not found in S3: ${filename}`, { status: 404 });
+    }
+  }
+  
+  // Local file serving (for local development or temp directory in serverless)
+  try {
+    // Check temp directory first (for Vercel serverless)
+    const tempDir = os.tmpdir();
+    const tempUploadsDir = path.join(tempDir, 'uploads');
+    
+    // Also check traditional locations for backwards compatibility
+    const localUploadsDir = path.join(process.cwd(), 'uploads');
+    const publicUploadsDir = path.join(process.cwd(), 'public', 'uploads');
+    
+    // Try to find the file in various locations
+    const searchLocations = [
+      // Direct in temp uploads
+      path.join(tempUploadsDir, filename),
+      // Direct in local uploads
+      path.join(localUploadsDir, filename),
+    ];
+    
+    // First, try direct paths
+    for (const filePath of searchLocations) {
+      try {
+        await fs.promises.access(filePath, fs.constants.F_OK);
+        console.log(`[PREVIEW API] SUCCESS: File found at: ${filePath}`);
+        const fileBuffer = await fs.promises.readFile(filePath);
+        console.log(`[PREVIEW API] SERVING: File read successfully, size: ${fileBuffer.length} bytes`);
+        return serveFileResponse(fileBuffer, filename);
+      } catch {
+        continue;
+      }
+    }
+    
+    // If not found in direct paths, search in subdirectories
+    const dirsToSearch = [tempUploadsDir, publicUploadsDir];
+    
+    for (const baseDir of dirsToSearch) {
+      if (!fs.existsSync(baseDir)) continue;
       
       try {
-        // Read all subdirectories in public/uploads
-        const subdirs = await fs.promises.readdir(publicUploadsDir);
+        const subdirs = await fs.promises.readdir(baseDir);
         
-        // Try each subdirectory
         for (const subdir of subdirs) {
-          const extractedFilePath = path.join(publicUploadsDir, subdir, filename);
+          const extractedFilePath = path.join(baseDir, subdir, filename);
           
           try {
             await fs.promises.access(extractedFilePath, fs.constants.F_OK);
-            console.log(`[PREVIEW API] SUCCESS: File found in extracted directory: ${extractedFilePath}`);
-            
-            // Read and serve the file from the extracted location
+            console.log(`[PREVIEW API] SUCCESS: File found in subdirectory: ${extractedFilePath}`);
             const fileBuffer = await fs.promises.readFile(extractedFilePath);
-            console.log(`[PREVIEW API] SERVING: File read successfully from extracted location, size: ${fileBuffer.length} bytes`);
+            console.log(`[PREVIEW API] SERVING: File read successfully, size: ${fileBuffer.length} bytes`);
             return serveFileResponse(fileBuffer, filename);
-          } catch (fileErr) {
-            // File not in this subdirectory, continue to next one
+          } catch {
             continue;
           }
         }
-        
-        // If we get here, the file wasn't found in any subdirectory
-        console.log(`[PREVIEW API] NOT FOUND: File "${filename}" not found in any extracted directory`);
-        return new Response(`File not found: ${filename}`, { status: 404 });
       } catch (dirErr) {
-        console.error(`[PREVIEW API] ERROR: Failed to read public/uploads directory:`, dirErr);
-        return new Response(`File not found: ${filename}`, { status: 404 });
+        console.log(`[PREVIEW API] Could not read directory: ${baseDir}`);
+        continue;
       }
     }
+    
+    // If we get here, the file wasn't found anywhere
+    console.log(`[PREVIEW API] NOT FOUND: File "${filename}" not found in any location`);
+    return new Response(`File not found: ${filename}`, { status: 404 });
+    
   } catch (error) {
     console.error(`[PREVIEW API] ERROR: Exception while serving document preview for ${filename}:`, error);
     return new Response(`File not found: ${filename}`, { status: 404 });
@@ -76,16 +117,8 @@ function serveFileResponse(fileBuffer: Buffer, filename: string) {
   const headers = new Headers();
   
   // Set content type based on file extension
-  const extension = path.extname(filename).toLowerCase();
-  if (extension === '.pdf') {
-    headers.set('Content-Type', 'application/pdf');
-  } else if (['.jpg', '.jpeg'].includes(extension)) {
-    headers.set('Content-Type', 'image/jpeg');
-  } else if (extension === '.png') {
-    headers.set('Content-Type', 'image/png');
-  } else {
-    headers.set('Content-Type', 'application/octet-stream');
-  }
+  const contentType = getContentType(filename);
+  headers.set('Content-Type', contentType);
   
   // Add cache control headers to prevent caching
   headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
@@ -93,9 +126,8 @@ function serveFileResponse(fileBuffer: Buffer, filename: string) {
   headers.set('Expires', '0');
   headers.set('Surrogate-Control', 'no-store');
   
-  // Add a random query parameter to the URL to bust cache
-  const timestamp = Date.now();
-  headers.set('X-Timestamp', timestamp.toString());
+  // Add a timestamp header
+  headers.set('X-Timestamp', Date.now().toString());
   
   return new Response(fileBuffer, { headers });
-} 
+}

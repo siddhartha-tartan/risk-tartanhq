@@ -1,0 +1,46 @@
+{
+  "insights": [
+    {
+      "title": "Consistent Personal Details Across Documents",
+      "description": "Most documents consistently report the applicant’s name as 'Goutam Singh', date of birth as '27/12/1992', and PAN number as 'DNFPS9282F'. For example, the Aditya Birla Finance Personal Loan Application, the Aadhaar excerpt, and the Microtek payslip all show these details. (Note: The TransUnion CIBIL report shows the name as 'GOUTAM NULL SINGH', which appears to be an OCR error rather than a true discrepancy.)",
+      "type": "info",
+      "relatedDocuments": ["Personal Loan Application Form", "Aadhaar (UIDAI)", "Microtek Payslip", "TransUnion CIBIL Report"]
+    },
+    {
+      "title": "Aligned Employment and Income Data",
+      "description": "The Microtek Technology payslip for March 2022 shows a gross net payable of ₹39,550, which exactly matches the 'Total Monthly Income' value entered in the loan application form. This consistency across the income verification documents supports the applicant’s reported salary.",
+      "type": "info",
+      "relatedDocuments": ["Microtek Payslip", "Personal Loan Application Form"]
+    },
+    {
+      "title": "Address Discrepancy Between Current and Permanent Residences",
+      "description": "The loan application form provides two separate addresses: the 'Current Address' is listed as 'SABITRI APT, 35, 3RD FL, SARADA SARANI, UDAYRAJPUR, MADHYAMGRAM, Kolkata -700129' while the 'Permanent Address' is 'Near Co-operative, Victoria Colliery, 4 No Dhauda, Jamgram, Barddhaman, 713343'. In contrast, both the HDFC bank statement and the Aadhaar document show the address as 'Near Co-operative Victorai Colliery, 4 No Dhauda, Kulti M, Barddhaman, 713343'. This difference may indicate that the applicant is currently residing at a rented or temporary accommodation; it is advisable to verify the reasons for the current address inconsistency.",
+      "type": "warning",
+      "relatedDocuments": ["Personal Loan Application Form", "HDFC Bank Statement", "Aadhaar Document"]
+    },
+    {
+      "title": "High Volume of Recent Credit Enquiries",
+      "description": "The TransUnion CIBIL credit report shows numerous credit enquiries with dates ranging from early 2022 (e.g., enquiries on 04-04-2022, 30-03-2022, 29-03-2022, etc.). This high volume of enquiries could indicate that the applicant has applied for multiple lines of credit recently. Such a pattern may negatively impact the credit score or be viewed as a potential risk.",
+      "type": "warning",
+      "relatedDocuments": ["TransUnion CIBIL Report"]
+    },
+    {
+      "title": "Active Rental Obligation Documented",
+      "description": "A detailed Leave and License Agreement, dated 11 NOV 2021, documents the applicant's rental arrangement for a flat at SABITRI APARTMENT, 35, 3rd Floor, Sarada Sarani, Udayrajpur, Madhyamgram. The agreement stipulates a monthly fee of ₹8,000 plus additional refundable security deposit of ₹16,000 for an 11-month period. This fixed rental expense should be considered in the applicant’s overall affordability analysis.",
+      "type": "info",
+      "relatedDocuments": ["Leave and License Agreement"]
+    },
+    {
+      "title": "Low Bank Balance Relative to Monthly Income",
+      "description": "The HDFC Bank statements (spanning multiple pages from March and early April 2022) reveal that after receiving a salary credit (e.g., a deposit of ₹27,491 on 05/03/22 from MICROTEK SALARY), the closing balance falls to around ₹13,651.03 by the end of the period. Given a monthly income of approximately ₹39,550, a low end‐of‐period balance may indicate high expenditure or liquidity constraints that require further examination.",
+      "type": "warning",
+      "relatedDocuments": ["HDFC Bank Statement", "Microtek Payslip"]
+    },
+    {
+      "title": "Overall Document Completeness and Quality",
+      "description": "The submitted documentation is generally comprehensive and includes personal identification (Aadhaar, PAN), income verification (payslip), employment details (loan application form), bank transactions (HDFC Bank statements), and credit history (TransUnion CIBIL report). Although some OCR errors are present (e.g., 'GOUTAM NULL SINGH'), they do not materially affect the overall information. The variation in languages (Hindi and English) is handled appropriately in each document.",
+      "type": "info",
+      "relatedDocuments": ["Personal Loan Application Form", "Aadhaar Document", "Microtek Payslip", "HDFC Bank Statement", "TransUnion CIBIL Report", "Leave and License Agreement"]
+    }
+  ]
+}

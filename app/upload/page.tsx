@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDropzone } from 'react-dropzone';
+import AppLayout from '@/app/components/AppLayout';
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -104,14 +105,15 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Client Financial Document Upload</h1>
-          <p className="text-gray-600">
-            Upload your client's financial records in a ZIP file for automated compliance verification
-          </p>
-        </div>
+    <AppLayout>
+      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Financial Document Upload</h1>
+            <p className="text-gray-600">
+              Upload your financial records in a ZIP file for automated compliance verification
+            </p>
+          </div>
 
         <div className="bg-white p-6 rounded-lg shadow-md">
           {error && (
@@ -187,8 +189,11 @@ export default function UploadPage() {
               </div>
             </div>
           )}
+
+
         </div>
       </div>
     </div>
+    </AppLayout>
   );
 } 

@@ -1,5 +1,20 @@
 // Simple in-memory store for document data
-// In a production app, this would be replaced with a database
+// 
+// IMPORTANT: Serverless/Vercel Deployment Limitation
+// -------------------------------------------------
+// This in-memory store will NOT persist data across serverless function invocations.
+// Each function invocation may run in a different container with fresh memory.
+// 
+// For production deployments on Vercel, consider replacing this with:
+// - Vercel KV (Redis) - https://vercel.com/docs/storage/vercel-kv
+// - Vercel Postgres - https://vercel.com/docs/storage/vercel-postgres
+// - External database (Supabase, PlanetScale, MongoDB Atlas, etc.)
+// - Or use a stateless design where all data is passed in requests
+//
+// For now, this works for:
+// - Local development
+// - Single-request flows where data doesn't need to persist between requests
+// - Demo purposes where data loss between requests is acceptable
 
 import { Document, ProcessingJob, ExtractedData } from '../models/DocumentTypes';
 
@@ -31,6 +46,10 @@ class DocumentStore {
 
   public getDocuments(): Document[] {
     return [...this.documents];
+  }
+
+  public getDocumentsBySession(sessionId: string): Document[] {
+    return this.documents.filter(doc => doc.userSession === sessionId);
   }
 
   public getDocument(id: number): Document | undefined {
