@@ -42,6 +42,9 @@ function safeRemoveItem(key: string): void {
 export class MockingStateManager {
   private static STORAGE_KEY = 'llm_mock_mode_enabled';
   
+  // PERMANENTLY ENABLED - Set to false to use real OpenAI
+  private static FORCE_MOCK_MODE = true;
+  
   static enableMockMode(): void {
     safeSetItem(this.STORAGE_KEY, 'true');
     if (typeof window !== 'undefined') {
@@ -57,6 +60,10 @@ export class MockingStateManager {
   }
   
   static isMockModeEnabled(): boolean {
+    // Always return true if FORCE_MOCK_MODE is enabled
+    if (this.FORCE_MOCK_MODE) {
+      return true;
+    }
     return safeGetItem(this.STORAGE_KEY) === 'true';
   }
   
