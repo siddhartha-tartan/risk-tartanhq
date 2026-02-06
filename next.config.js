@@ -16,7 +16,8 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/(.*)',
+        // Allow iframes for API preview routes (needed for PDF preview)
+        source: '/api/documents/:path*',
         headers: [
           {
             key: 'X-Content-Type-Options',
@@ -24,7 +25,21 @@ const nextConfig = {
           },
           {
             key: 'X-Frame-Options',
-            value: 'DENY',
+            value: 'SAMEORIGIN',
+          },
+        ],
+      },
+      {
+        // Strict headers for all other routes
+        source: '/((?!api/documents).*)',
+        headers: [
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
           },
           {
             key: 'Strict-Transport-Security',
