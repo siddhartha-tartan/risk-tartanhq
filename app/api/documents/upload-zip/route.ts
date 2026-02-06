@@ -105,6 +105,10 @@ export async function POST(request: NextRequest) {
 
     } catch (s3Error: any) {
       console.error(`[${new Date().toISOString()}] S3 upload failed:`, s3Error);
+      console.error(`[${new Date().toISOString()}] S3 Error Name:`, s3Error.name);
+      console.error(`[${new Date().toISOString()}] S3 Error Code:`, s3Error.Code || s3Error.$metadata?.httpStatusCode);
+      console.error(`[${new Date().toISOString()}] Bucket: ${BUCKET_NAME}, Region: ${AWS_REGION}`);
+      console.error(`[${new Date().toISOString()}] AWS Key configured:`, process.env.AWS_ACCESS_KEY_ID ? 'Yes (starts with ' + process.env.AWS_ACCESS_KEY_ID.substring(0, 4) + '...)' : 'NO - MISSING!');
       
       // Clean up temp file on error
       if (tempFilePath && existsSync(tempFilePath)) {
@@ -118,7 +122,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { 
           error: 'File upload to S3 failed', 
-          details: s3Error.message || 'Unknown S3 error'
+          details: s3Error.message || 'Unknown S3 error',
+          errorCode: s3Error.name || s3Error.Code,
+          bucket: BUCKET_NAME,
+          region: AWS_REGION,
+          credentialsConfigured: !!process.env.AWS_ACCESS_KEY_ID && !!process.env.AWS_SECRET_ACCESS_KEY
         },
         { status: 500 }
       );
