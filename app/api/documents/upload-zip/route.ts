@@ -1,23 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir, unlink } from 'fs/promises';
+import { writeFile, unlink } from 'fs/promises';
 import { existsSync } from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import os from 'os';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
-// S3 configuration
-const BUCKET_NAME = process.env.S3_BUCKET || 'ai-policy-benchmark';
-const AWS_REGION = process.env.AWS_REGION || 'ap-south-1';
+// Lazy initialization of S3 client
+let s3Client: S3Client | null = null;
 
-// Initialize S3 client
-const s3Client = new S3Client({
-  region: AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
-  },
-});
+function getS3Client() {
+  if (!s3Client) {
+    const region = process.env.AWS_REGION || 'ap-south-1';
+    const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
+    const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+    
+    console.log(`[S3] Initializing client - Region: ${region}, AccessKey: ${accessKeyId ? 'Set' : 'MISSING'}, SecretKey: ${secretAccessKey ? 'Set' : 'MISSING'}`);
+    
+    if (!accessKeyId || !secretAccessKey) {
+      throw new Error('AWS credentials not configured. Please set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables.');
+    }
+    
+    s3Client = new S3Client({
+      region,
+      credentials: {
+        accessKeyId,
+        secretAccessKey,
+      },
+    });
+  }
+  return s3Client;
+}
 
 export async function POST(request: NextRequest) {
   const startTime = new Date().toISOString();
@@ -26,6 +39,26 @@ export async function POST(request: NextRequest) {
   let tempFilePath: string | null = null;
   
   try {
+    // Check credentials first
+    const bucketName = process.env.S3_BUCKET || 'ai-policy-benchmark';
+    const awsRegion = process.env.AWS_REGION || 'ap-south-1';
+    
+    console.log(`[${new Date().toISOString()}] Config - Bucket: ${bucketName}, Region: ${awsRegion}`);
+    console.log(`[${new Date().toISOString()}] AWS_ACCESS_KEY_ID: ${process.env.AWS_ACCESS_KEY_ID ? 'configured' : 'MISSING'}`);
+    console.log(`[${new Date().toISOString()}] AWS_SECRET_ACCESS_KEY: ${process.env.AWS_SECRET_ACCESS_KEY ? 'configured' : 'MISSING'}`);
+    
+    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+      return NextResponse.json(
+        { 
+          error: 'AWS credentials not configured',
+          details: 'Please set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in Vercel environment variables',
+          awsKeySet: !!process.env.AWS_ACCESS_KEY_ID,
+          awsSecretSet: !!process.env.AWS_SECRET_ACCESS_KEY
+        },
+        { status: 500 }
+      );
+    }
+    
     const formData = await request.formData();
     const file: File | null = formData.get('zipFile') as unknown as File;
 
@@ -71,19 +104,22 @@ export async function POST(request: NextRequest) {
     }
 
     try {
+      // Get S3 client (lazy initialization)
+      const client = getS3Client();
+      
       // Upload to S3 using AWS SDK v3
-      console.log(`[${new Date().toISOString()}] Starting S3 upload to bucket: ${BUCKET_NAME}`);
+      console.log(`[${new Date().toISOString()}] Starting S3 upload to bucket: ${bucketName}`);
       
       const uploadCommand = new PutObjectCommand({
-        Bucket: BUCKET_NAME,
+        Bucket: bucketName,
         Key: fileName,
         Body: fileBuffer,
         ContentType: 'application/zip',
       });
 
-      await s3Client.send(uploadCommand);
+      await client.send(uploadCommand);
       
-      const s3Url = `s3://${BUCKET_NAME}/${fileName}`;
+      const s3Url = `s3://${bucketName}/${fileName}`;
       console.log(`[${new Date().toISOString()}] Upload successful: ${s3Url}`);
 
       // Clean up temp file if it exists
@@ -107,8 +143,7 @@ export async function POST(request: NextRequest) {
       console.error(`[${new Date().toISOString()}] S3 upload failed:`, s3Error);
       console.error(`[${new Date().toISOString()}] S3 Error Name:`, s3Error.name);
       console.error(`[${new Date().toISOString()}] S3 Error Code:`, s3Error.Code || s3Error.$metadata?.httpStatusCode);
-      console.error(`[${new Date().toISOString()}] Bucket: ${BUCKET_NAME}, Region: ${AWS_REGION}`);
-      console.error(`[${new Date().toISOString()}] AWS Key configured:`, process.env.AWS_ACCESS_KEY_ID ? 'Yes (starts with ' + process.env.AWS_ACCESS_KEY_ID.substring(0, 4) + '...)' : 'NO - MISSING!');
+      console.error(`[${new Date().toISOString()}] Bucket: ${bucketName}, Region: ${awsRegion}`);
       
       // Clean up temp file on error
       if (tempFilePath && existsSync(tempFilePath)) {
@@ -124,9 +159,8 @@ export async function POST(request: NextRequest) {
           error: 'File upload to S3 failed', 
           details: s3Error.message || 'Unknown S3 error',
           errorCode: s3Error.name || s3Error.Code,
-          bucket: BUCKET_NAME,
-          region: AWS_REGION,
-          credentialsConfigured: !!process.env.AWS_ACCESS_KEY_ID && !!process.env.AWS_SECRET_ACCESS_KEY
+          bucket: bucketName,
+          region: awsRegion
         },
         { status: 500 }
       );
