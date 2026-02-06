@@ -169,7 +169,7 @@ async function extractFilesFromS3Zip(s3Key: string, requestId: string) {
     console.log(`Found ${zipEntries.length} total entries in ZIP file`);
 
     // Extract files and track valid ones
-    const validFiles: Array<{name: string, path: string, type: string}> = [];
+    const validFiles: Array<{name: string, path: string, type: string, s3Key?: string}> = [];
     const skippedFiles: Array<{name: string, reason: string}> = [];
 
     for (const entry of zipEntries) {
