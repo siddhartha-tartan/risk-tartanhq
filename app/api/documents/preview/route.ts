@@ -102,8 +102,43 @@ export async function GET(request: Request) {
       }
     }
     
+    // If not found locally, try S3 as fallback
+    // Look for the file in S3 extracted folder
+    console.log(`[PREVIEW API] File not found locally, trying S3 fallback...`);
+    
+    try {
+      // Try to find the file in S3 by searching common patterns
+      // The file might be in extracted/{sessionId}/{filename}
+      const s3Patterns = [
+        s3Key,  // Direct S3 key if provided
+        `extracted/*/${filename}`,  // Pattern for extracted files
+        filename,  // Direct filename
+      ].filter(Boolean);
+      
+      // If s3Key is provided, use it directly
+      if (s3Key) {
+        console.log(`[PREVIEW API] Trying S3 with key: ${s3Key}`);
+        const fileBuffer = await getFromS3(s3Key);
+        console.log(`[PREVIEW API] SERVING from S3: File fetched successfully, size: ${fileBuffer.length} bytes`);
+        return serveFileResponse(fileBuffer, filename);
+      }
+      
+      // Try to extract sessionId from the URL path pattern /uploads/{sessionId}/{filename}
+      const pathMatch = searchParams.get('path')?.match(/uploads\/([^/]+)\//);
+      if (pathMatch) {
+        const sessionId = pathMatch[1];
+        const s3FileKey = `extracted/${sessionId}/${filename}`;
+        console.log(`[PREVIEW API] Trying S3 with extracted key: ${s3FileKey}`);
+        const fileBuffer = await getFromS3(s3FileKey);
+        console.log(`[PREVIEW API] SERVING from S3: File fetched successfully, size: ${fileBuffer.length} bytes`);
+        return serveFileResponse(fileBuffer, filename);
+      }
+    } catch (s3Error) {
+      console.log(`[PREVIEW API] S3 fallback also failed:`, s3Error);
+    }
+    
     // If we get here, the file wasn't found anywhere
-    console.log(`[PREVIEW API] NOT FOUND: File "${filename}" not found in any location`);
+    console.log(`[PREVIEW API] NOT FOUND: File "${filename}" not found in any location (local or S3)`);
     return new Response(`File not found: ${filename}`, { status: 404 });
     
   } catch (error) {

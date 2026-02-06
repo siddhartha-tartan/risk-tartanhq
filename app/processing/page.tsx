@@ -102,13 +102,14 @@ function ProcessingContent() {
           // Create a document for each extracted file
           processedDocuments = extractedFiles.map((file: any, index: number) => {
             const ocrText = ocrData[file.name] || `[No OCR text available for ${file.name}]`;
-            console.log(`Document ${index + 1}: "${file.name}", OCR text length: ${ocrText.length > 0 ? ocrText.length : 0}`);
+            console.log(`Document ${index + 1}: "${file.name}", OCR text length: ${ocrText.length > 0 ? ocrText.length : 0}, s3Key: ${file.s3Key || 'none'}`);
             
             return {
               id: index + 1,
               originalFilename: file.name,
               thumbnailUrl: file.path,
               filePath: file.path,
+              s3Key: file.s3Key, // Store S3 key for preview
               type: inferDocumentType(file.name),
               filetype: file.type || (file.name.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'image/jpeg'),
               ocrText: typeof ocrText === 'string' ? ocrText : String(ocrText),

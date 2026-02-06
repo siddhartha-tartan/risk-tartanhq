@@ -341,7 +341,7 @@ function BusinessDocumentMappingContent() {
                         {currentDocument.originalFilename ? (
                           currentDocument.filetype === 'application/pdf' ? (
                             <iframe
-                              src={`/api/documents/preview?filename=${encodeURIComponent(currentDocument.originalFilename)}`}
+                              src={`/api/documents/preview?filename=${encodeURIComponent(currentDocument.originalFilename)}${currentDocument.s3Key ? `&s3Key=${encodeURIComponent(currentDocument.s3Key)}&source=s3` : ''}`}
                               className="w-full h-full min-h-[400px]"
                               title={currentDocument.originalFilename}
                               onError={(e) => {
@@ -366,7 +366,7 @@ function BusinessDocumentMappingContent() {
                           ) : (
                             <div className="h-full w-full flex items-center justify-center">
                               <img
-                                src={`/api/documents/preview?filename=${encodeURIComponent(currentDocument.originalFilename)}`}
+                                src={`/api/documents/preview?filename=${encodeURIComponent(currentDocument.originalFilename)}${currentDocument.s3Key ? `&s3Key=${encodeURIComponent(currentDocument.s3Key)}&source=s3` : ''}`}
                                 alt={currentDocument.originalFilename}
                                 className="max-h-full max-w-full object-contain"
                                 onError={(e) => {

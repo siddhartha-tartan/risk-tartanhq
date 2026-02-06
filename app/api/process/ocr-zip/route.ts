@@ -5,7 +5,7 @@ import os from 'os';
 import { writeFile, mkdir, rm, readFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 
 // OCR API configuration from environment variables
 const OCR_API_URL = process.env.OCR_API_URL || 'https://nc3y3gmff4.execute-api.ap-south-1.amazonaws.com/v1/api/v1/cam_ocr';
@@ -195,12 +195,34 @@ async function extractFilesFromS3Zip(s3Key: string, requestId: string) {
         zip.extractEntryTo(entry, extractDir, false, true);
         
         if (existsSync(targetPath)) {
-          validFiles.push({
-            name: fileName,
-            path: `/uploads/${requestId}/${fileName}`,
-            type: fileType
-          });
-          console.log(`Extracted valid file: ${fileName} (${fileType})`);
+          // Upload extracted file to S3 for persistence
+          try {
+            const fileContent = await readFile(targetPath);
+            const s3FileKey = `extracted/${requestId}/${fileName}`;
+            
+            await s3Client.send(new PutObjectCommand({
+              Bucket: BUCKET_NAME,
+              Key: s3FileKey,
+              Body: fileContent,
+              ContentType: fileType,
+            }));
+            
+            validFiles.push({
+              name: fileName,
+              path: `/uploads/${requestId}/${fileName}`,
+              s3Key: s3FileKey,  // Add S3 key for preview
+              type: fileType
+            });
+            console.log(`Extracted and uploaded to S3: ${fileName} -> ${s3FileKey}`);
+          } catch (uploadError) {
+            console.error(`Failed to upload ${fileName} to S3:`, uploadError);
+            // Still include the file but without S3 key
+            validFiles.push({
+              name: fileName,
+              path: `/uploads/${requestId}/${fileName}`,
+              type: fileType
+            });
+          }
         } else {
           console.error(`Failed to extract file ${fileName} to ${targetPath}`);
           skippedFiles.push({ name: fileName, reason: 'extraction failed' });
