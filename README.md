@@ -12,7 +12,7 @@ A Next.js application for uploading, processing, and extracting structured data 
 
 ## Getting Started
 
-### Prerequisites
+### Prerequisites of it
 
 - Node.js 14.x or higher
 - npm or yarn
