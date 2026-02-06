@@ -159,6 +159,11 @@ async function extractFilesFromS3Zip(s3Key: string, requestId: string) {
     
     console.log(`Downloaded ZIP file, size: ${zipBuffer.length} bytes`);
     
+    // IMPORTANT: Log warning for suspiciously small files
+    if (zipBuffer.length < 10000) {
+      console.warn(`⚠️ WARNING: Downloaded ZIP is suspiciously small (${zipBuffer.length} bytes). Expected real documents to be larger. S3 Key: ${s3Key}`);
+    }
+    
     // Save ZIP to temp location for extraction
     const tempZipPath = path.join(tempDir, `${requestId}_temp.zip`);
     await writeFile(tempZipPath, zipBuffer);

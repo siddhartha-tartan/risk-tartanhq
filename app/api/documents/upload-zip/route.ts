@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, unlink } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import os from 'os';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
 // Lazy initialization of S3 client
@@ -35,8 +31,6 @@ function getS3Client() {
 export async function POST(request: NextRequest) {
   const startTime = new Date().toISOString();
   console.log(`[${startTime}] Upload API route called`);
-  
-  let tempFilePath: string | null = null;
   
   try {
     // Check credentials first
@@ -71,6 +65,20 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`[${new Date().toISOString()}] File received: ${file.name}, size: ${file.size} bytes, type: ${file.type}`);
+    
+    // IMPORTANT: Reject suspiciously small files (demo zip was ~1KB)
+    // Real document ZIPs should be at least 10KB
+    if (file.size < 10000) {
+      console.error(`[${new Date().toISOString()}] ❌ REJECTED: File too small (${file.size} bytes). Minimum size is 10KB. This might be a demo/test file, not a real document package.`);
+      return NextResponse.json(
+        { 
+          error: 'File too small', 
+          details: `The uploaded file is only ${file.size} bytes. Real document packages should be at least 10KB. Please ensure you selected the correct file.`,
+          fileSize: file.size
+        },
+        { status: 400 }
+      );
+    }
 
     // Check if the file is a zip file
     if (file.type !== 'application/zip' && !file.name.endsWith('.zip')) {
@@ -86,21 +94,22 @@ export async function POST(request: NextRequest) {
     const fileName = `${sessionId}_${file.name}`;
     console.log(`[${new Date().toISOString()}] Generated session ID: ${sessionId}`);
 
-    // Convert file to buffer
+    // Convert file to buffer - upload directly to S3 without temp file
     const fileBuffer = Buffer.from(await file.arrayBuffer());
     console.log(`[${new Date().toISOString()}] File buffer created, size: ${fileBuffer.length} bytes`);
-
-    // Use /tmp directory for temporary storage (works in Vercel serverless)
-    const tempDir = os.tmpdir();
-    tempFilePath = path.join(tempDir, fileName);
     
-    try {
-      // Save to temp directory (needed for some processing operations)
-      await writeFile(tempFilePath, fileBuffer);
-      console.log(`[${new Date().toISOString()}] File saved to temp: ${tempFilePath}`);
-    } catch (tempWriteError) {
-      console.error(`[${new Date().toISOString()}] Error writing to temp:`, tempWriteError);
-      // Continue anyway - we can still upload to S3 directly from buffer
+    // Verify buffer size matches file size
+    if (fileBuffer.length !== file.size) {
+      console.error(`[${new Date().toISOString()}] ❌ BUFFER SIZE MISMATCH: file.size=${file.size}, buffer.length=${fileBuffer.length}`);
+      return NextResponse.json(
+        { 
+          error: 'File read error', 
+          details: `Buffer size (${fileBuffer.length}) does not match file size (${file.size}). Please try uploading again.`,
+          fileSize: file.size,
+          bufferSize: fileBuffer.length
+        },
+        { status: 500 }
+      );
     }
 
     try {
@@ -120,23 +129,15 @@ export async function POST(request: NextRequest) {
       await client.send(uploadCommand);
       
       const s3Url = `s3://${bucketName}/${fileName}`;
-      console.log(`[${new Date().toISOString()}] Upload successful: ${s3Url}`);
-
-      // Clean up temp file if it exists
-      if (tempFilePath && existsSync(tempFilePath)) {
-        try {
-          await unlink(tempFilePath);
-          console.log(`[${new Date().toISOString()}] Cleaned up temp file`);
-        } catch (cleanupError) {
-          console.error(`[${new Date().toISOString()}] Error cleaning up temp file:`, cleanupError);
-        }
-      }
+      console.log(`[${new Date().toISOString()}] Upload successful: ${s3Url}, size uploaded: ${fileBuffer.length} bytes`);
 
       return NextResponse.json({
         success: true,
         message: 'File uploaded successfully',
         s3Key: fileName,
         s3Url: s3Url,
+        uploadedBytes: fileBuffer.length,
+        originalFileName: file.name,
       });
 
     } catch (s3Error: any) {
@@ -144,15 +145,7 @@ export async function POST(request: NextRequest) {
       console.error(`[${new Date().toISOString()}] S3 Error Name:`, s3Error.name);
       console.error(`[${new Date().toISOString()}] S3 Error Code:`, s3Error.Code || s3Error.$metadata?.httpStatusCode);
       console.error(`[${new Date().toISOString()}] Bucket: ${bucketName}, Region: ${awsRegion}`);
-      
-      // Clean up temp file on error
-      if (tempFilePath && existsSync(tempFilePath)) {
-        try {
-          await unlink(tempFilePath);
-        } catch (cleanupError) {
-          console.error(`[${new Date().toISOString()}] Error cleaning up temp file:`, cleanupError);
-        }
-      }
+      console.error(`[${new Date().toISOString()}] Buffer size that failed: ${fileBuffer.length} bytes`);
 
       return NextResponse.json(
         { 
@@ -167,15 +160,6 @@ export async function POST(request: NextRequest) {
     }
   } catch (error: any) {
     console.error(`[${new Date().toISOString()}] Error handling file upload:`, error);
-    
-    // Clean up temp file on error
-    if (tempFilePath && existsSync(tempFilePath)) {
-      try {
-        await unlink(tempFilePath);
-      } catch (cleanupError) {
-        console.error(`[${new Date().toISOString()}] Error cleaning up temp file:`, cleanupError);
-      }
-    }
 
     return NextResponse.json(
       { error: 'Error handling file upload', details: error.message },
