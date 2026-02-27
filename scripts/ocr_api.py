@@ -11,8 +11,12 @@ load_dotenv()
 
 # Get API configuration from environment variables
 OCR_API_URL = os.environ.get('OCR_API_URL', 'http://rulesyncapi-cl1.ap-south-1.elasticbeanstalk.com/api/v1/cam_ocr')
-OCR_API_USERNAME = os.environ.get('OCR_API_USERNAME', 'chat@service.user')
-OCR_API_PASSWORD = os.environ.get('OCR_API_PASSWORD', 'chat@123')
+
+# Hardcoded OCR API authentication credentials
+OCR_API_USERNAME = 'chat@service.user'
+OCR_API_PASSWORD = 'chat@123'
+OCR_API_KEY = '9ac4a1af6ba1ad743133ae7d328969412717e4ee67132ad0e8b2212bf2e169e2'
+OCR_ORGANIZATION_ID = 'e47904cc-c5e6-4811-a7e8-34568ec87267'
 
 def log_message(message, level="INFO"):
     """Helper to create consistent log messages with timestamps"""
@@ -24,12 +28,16 @@ def process_ocr(request_id, bucket_name, s3_key):
     
     payload = json.dumps({
         "request_id": request_id,
+        "request_type": "cam_ocr",
         "bucket_name": bucket_name,
-        "s3_key": s3_key
+        "s3_key": s3_key,
+        "pre_signed_download_url": None
     })
     headers = {
         'Username': OCR_API_USERNAME,
         'Password': OCR_API_PASSWORD,
+        'x-api-key': OCR_API_KEY,
+        'organization-id': OCR_ORGANIZATION_ID,
         'Content-Type': 'application/json'
     }
 
