@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get API configuration from environment variables
-OCR_API_URL = os.environ.get('OCR_API_URL', 'http://rulesyncapi-cl1.ap-south-1.elasticbeanstalk.com/api/v1/cam_ocr')
+OCR_API_URL = 'https://ai-service.tartanhq.com/api/v1/cam_ocr'
 
 # Hardcoded OCR API authentication credentials
 OCR_API_USERNAME = 'chat@service.user'
