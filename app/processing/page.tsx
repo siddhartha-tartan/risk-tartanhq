@@ -61,7 +61,19 @@ function ProcessingContent() {
           return; // Stop processing if OCR failed
         }
 
-        const ocrResult = await ocrResponse.json();
+        // Safely parse the response - handle non-JSON responses gracefully
+        const ocrResponseText = await ocrResponse.text();
+        console.log('OCR API response status:', ocrResponse.status, 'length:', ocrResponseText.length);
+        console.log('OCR API response preview:', ocrResponseText.substring(0, 200));
+
+        let ocrResult;
+        try {
+          ocrResult = JSON.parse(ocrResponseText);
+        } catch (parseErr) {
+          console.error('Failed to parse OCR response as JSON:', ocrResponseText.substring(0, 500));
+          setError(`OCR service returned an invalid response: "${ocrResponseText.substring(0, 100)}". Please try again or contact support.`);
+          return;
+        }
         console.log('OCR processing result:', ocrResult);
 
         // Check if the response contains an error

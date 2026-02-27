@@ -7,14 +7,15 @@ import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
 import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 
-// OCR API configuration from environment variables
+// Hardcoded OCR API configuration - DO NOT use env vars for these
 const OCR_API_URL = 'https://ai-service.tartanhq.com/api/v1/cam_ocr';
-
-// Hardcoded OCR API authentication credentials
 const OCR_API_USERNAME = 'chat@service.user';
 const OCR_API_PASSWORD = 'chat@123';
 const OCR_API_KEY = '9ac4a1af6ba1ad743133ae7d328969412717e4ee67132ad0e8b2212bf2e169e2';
 const OCR_ORGANIZATION_ID = 'e47904cc-c5e6-4811-a7e8-34568ec87267';
+
+// Log at module load to verify correct config in cloud logs
+console.log(`[OCR CONFIG] URL=${OCR_API_URL}, User=${OCR_API_USERNAME}, ApiKey=${OCR_API_KEY.substring(0, 8)}...`);
 
 // S3 configuration
 const BUCKET_NAME = process.env.S3_BUCKET || 'ai-policy-benchmark';
