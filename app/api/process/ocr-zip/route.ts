@@ -66,7 +66,10 @@ async function callOcrApi(requestId: string, bucketName: string, s3Key: string) 
     }
 
     const responseText = await response.text();
+    console.log(`[OCR API] Response status: ${response.status}`);
     console.log(`[OCR API] Response text length: ${responseText.length}`);
+    console.log(`[OCR API] Response text preview (first 500 chars): ${responseText.substring(0, 500)}`);
+    console.log(`[OCR API] Response headers:`, JSON.stringify(Object.fromEntries(response.headers.entries())));
 
     try {
       const responseJson = JSON.parse(responseText);
@@ -86,7 +89,8 @@ async function callOcrApi(requestId: string, bucketName: string, s3Key: string) 
 
     } catch (parseError: any) {
       console.error(`[OCR API] JSON parse error:`, parseError);
-      throw new Error(`Failed to parse OCR API response: ${parseError.message}`);
+      console.error(`[OCR API] Raw response that failed to parse: ${responseText.substring(0, 1000)}`);
+      throw new Error(`Failed to parse OCR API response (status ${response.status}): ${responseText.substring(0, 200)}`);
     }
 
   } catch (fetchError: any) {

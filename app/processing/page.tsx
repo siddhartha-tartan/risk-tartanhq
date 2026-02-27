@@ -27,7 +27,7 @@ function ProcessingContent() {
         // Step 1: OCR Processing - Call OCR API
         setProcessingStep(1);
         setStatus('Extracting text with OCR...');
-        
+
         // Call the OCR API
         const ocrResponse = await fetch('/api/process/ocr-zip', {
           method: 'POST',
@@ -38,16 +38,25 @@ function ProcessingContent() {
         });
 
         if (!ocrResponse.ok) {
-          const errorData = await ocrResponse.json();
-          console.error('OCR API error:', errorData);
-          
-          let errorMessage = errorData.error || 'OCR processing failed';
-          
-          // If there's an action required, add it to the error message
-          if (errorData.actionRequired) {
-            errorMessage += '. ' + errorData.actionRequired;
+          // Safely handle both JSON and non-JSON error responses
+          let errorMessage = `OCR processing failed (status ${ocrResponse.status})`;
+          try {
+            const errorText = await ocrResponse.text();
+            console.error('OCR API error response:', ocrResponse.status, errorText);
+            try {
+              const errorData = JSON.parse(errorText);
+              errorMessage = errorData.error || errorMessage;
+              if (errorData.actionRequired) {
+                errorMessage += '. ' + errorData.actionRequired;
+              }
+            } catch {
+              // Response was not JSON (e.g. gateway error like "Request Entity Too Large")
+              errorMessage = errorText || errorMessage;
+            }
+          } catch {
+            console.error('Failed to read error response body');
           }
-          
+
           setError(errorMessage);
           return; // Stop processing if OCR failed
         }
@@ -91,19 +100,19 @@ function ProcessingContent() {
 
         if (ocrResult && ocrResult.localFiles && ocrResult.localFiles.length > 0) {
           console.log('Creating processed documents from localFiles and OCR results');
-          
+
           // Get the list of files extracted from the ZIP
           const extractedFiles = ocrResult.localFiles;
           console.log(`Processing ${extractedFiles.length} extracted files`);
-          
+
           // Get the OCR results
           const ocrData = ocrResult.result;
-          
+
           // Create a document for each extracted file
           processedDocuments = extractedFiles.map((file: any, index: number) => {
             const ocrText = ocrData[file.name] || `[No OCR text available for ${file.name}]`;
             console.log(`Document ${index + 1}: "${file.name}", OCR text length: ${ocrText.length > 0 ? ocrText.length : 0}, s3Key: ${file.s3Key || 'none'}`);
-            
+
             return {
               id: index + 1,
               originalFilename: file.name,
@@ -116,14 +125,14 @@ function ProcessingContent() {
               userSession: s3Key // Add session identifier to link documents to this upload session
             };
           });
-          
+
           console.log(`Created ${processedDocuments.length} documents from extracted files with session key: ${s3Key}`);
         } else if (ocrResult && ocrResult.result) {
           // Fallback: Try to create documents from OCR result directly
           console.log('No extracted files found, trying to create documents from OCR results directly');
-          
+
           const ocrData = ocrResult.result;
-          
+
           if (typeof ocrData === 'object' && ocrData !== null) {
             processedDocuments = Object.entries(ocrData).map(([filename, ocrText], index) => {
               return {
@@ -136,7 +145,7 @@ function ProcessingContent() {
                 ocrText: typeof ocrText === 'string' ? ocrText : String(ocrText)
               };
             });
-            
+
             console.log(`Created ${processedDocuments.length} documents from OCR data`);
           }
         }
@@ -147,7 +156,7 @@ function ProcessingContent() {
         }
 
         console.log('Final processed documents:', processedDocuments);
-        
+
         // Display warning if there was an OCR service error
         if (ocrResult && (ocrResult.hasError || ocrResult.result?.warning)) {
           setError(ocrResult.errorMessage || ocrResult.result?.warning || 'The OCR service encountered an error. Some documents may have incomplete text extraction.');
@@ -156,7 +165,7 @@ function ProcessingContent() {
           // Clear error to allow continuing
           setError('');
         }
-        
+
         // Make sure all documents have OCR text
         const validDocuments = processedDocuments.filter((doc: any) => {
           if (!doc.ocrText || doc.ocrText.trim().length === 0) {
@@ -165,12 +174,12 @@ function ProcessingContent() {
           }
           return true;
         });
-        
+
         if (validDocuments.length === 0) {
           setError('No valid OCR data could be extracted from your documents. Please try a different file.');
           return;
         }
-        
+
         // Store documents in our document store
         documentStore.clearDocuments();
         validDocuments.forEach((doc: any) => {
@@ -182,7 +191,7 @@ function ProcessingContent() {
             processingStatus: 'completed'
           });
         });
-        
+
         console.log(`Stored ${validDocuments.length} documents with OCR text in document store`);
 
         // Wait to simulate processing time
@@ -244,9 +253,8 @@ function ProcessingContent() {
             <div className="mb-8">
               <div className="mb-4">
                 <div className="flex items-center mb-2">
-                  <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
-                    processingStep >= 1 ? 'bg-indigo-600 text-white' : 'bg-gray-200'
-                  }`}>
+                  <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${processingStep >= 1 ? 'bg-indigo-600 text-white' : 'bg-gray-200'
+                    }`}>
                     {processingStep > 1 ? '✓' : '1'}
                   </div>
                   <div className="ml-4">
@@ -254,14 +262,13 @@ function ProcessingContent() {
                     <p className="text-sm text-gray-500">Extracting financial data from documents</p>
                   </div>
                 </div>
-                
+
                 {/* Line connector */}
                 <div className="ml-4 pl-0.5 h-10 border-l-2 border-indigo-600"></div>
-                
+
                 <div className="flex items-center mb-2">
-                  <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
-                    processingStep >= 2 ? 'bg-indigo-600 text-white' : 'bg-gray-200'
-                  }`}>
+                  <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${processingStep >= 2 ? 'bg-indigo-600 text-white' : 'bg-gray-200'
+                    }`}>
                     {processingStep > 2 ? '✓' : '2'}
                   </div>
                   <div className="ml-4">
@@ -269,14 +276,13 @@ function ProcessingContent() {
                     <p className="text-sm text-gray-500">Categorizing and validating financial records</p>
                   </div>
                 </div>
-                
+
                 {/* Line connector */}
                 <div className="ml-4 pl-0.5 h-10 border-l-2 border-indigo-600"></div>
-                
+
                 <div className="flex items-center">
-                  <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
-                    processingStep >= 3 ? 'bg-indigo-600 text-white' : 'bg-gray-200'
-                  }`}>
+                  <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${processingStep >= 3 ? 'bg-indigo-600 text-white' : 'bg-gray-200'
+                    }`}>
                     {processingStep > 3 ? '✓' : '3'}
                   </div>
                   <div className="ml-4">
@@ -329,9 +335,9 @@ export default function ProcessingPage() {
 // Helper function to infer document type from filename
 function inferDocumentType(filename: string): string {
   const lowerName = filename.toLowerCase();
-  
-  if (lowerName.includes('aadhar') || lowerName.includes('aadhaar') || lowerName.includes('pan') || 
-      lowerName.includes('id') || lowerName.includes('card')) {
+
+  if (lowerName.includes('aadhar') || lowerName.includes('aadhaar') || lowerName.includes('pan') ||
+    lowerName.includes('id') || lowerName.includes('card')) {
     return 'identification';
   } else if (lowerName.includes('salary') || lowerName.includes('payslip') || lowerName.includes('income')) {
     return 'income';
