@@ -8,7 +8,7 @@ import AdmZip from 'adm-zip';
 import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 
 // OCR API configuration from environment variables
-const OCR_API_URL = process.env.OCR_API_URL || 'https://nc3y3gmff4.execute-api.ap-south-1.amazonaws.com/v1/api/v1/cam_ocr';
+const OCR_API_URL = 'https://ai-service.tartanhq.com/api/v1/cam_ocr';
 
 // Hardcoded OCR API authentication credentials
 const OCR_API_USERNAME = 'chat@service.user';
